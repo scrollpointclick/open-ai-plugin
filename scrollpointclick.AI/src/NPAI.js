@@ -34,7 +34,7 @@ const baseURL = 'https://api.openai.com/v1'
 const modelsComponent = 'models'
 const imagesGenerationComponent = 'images/generations'
 const completionsComponent = 'completions'
-const { apiKey, defaultModel, showStats, max_tokens, researchDirectory, bulletsAIKeyTerms } = DataStore.settings
+const { apiKey, defaultModel, showStats, max_tokens, researchDirectory, aiToolsDirectory} = DataStore.settings
 
 const availableModels = ['text-davinci-003', 'text-curie-001', 'text-babbage-001', 'text-ada-001']
 
@@ -141,6 +141,17 @@ export async function chooseQuickSearchOption(query: string, summary: string): P
   const selection = await chooseOption('How would you like to proceed?', mappedOptions)
   logDebug(pluginJson, `chooseQuickSearchOption ${selection} selected.`)
   return selection
+}
+
+/**
+ * Prompt for new research tunnel
+ * 
+ */
+export async function createResearchDigSite() {
+  const subject = await CommandBar.showInput('Type in your subject..', 'Start Research')
+  DataStore.newNoteWithContent(`# ${subject} Research\n\n`, `${aiToolsDirectory}`, `${subject}.txt`) 
+  await Editor.openNoteByFilename(`${aiToolsDirectory}/${subject}.txt`)
+  DataStore.invokePluginCommandByName(`Bullets AI`, `scrollpointclick.AI`, [`${subject}`])
 }
 
 /**
@@ -663,7 +674,12 @@ export async function bulletsAI(inputText: string = '', remixText: string = '', 
         prompt = await formatBullet(remixText)
         linkPrompt = await formatBulletLink(text)
         listPrompt = await formatBulletKeyTerms(remixText)
-      } 
+      } else {
+        logDebug(pluginJson, `bulletsAI got the text:\n\n${text}`)
+        prompt = await formatBullet(text)
+        linkPrompt = await formatBulletLink(text)
+        listPrompt = await formatBulletKeyTerms(text)
+      }
 
       logDebug(pluginJson, `bulletsAI got the formatted prompt:\n\n${prompt}`)
     

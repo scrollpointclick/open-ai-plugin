@@ -4,7 +4,7 @@
   "noteplan.minAppVersion": "3.4.0",
   "plugin.id": "scrollpointclick.AI",
   "plugin.name": "💡 AAI",
-  "plugin.version": "0.1.9",
+  "plugin.version": "0.1.91",
   "plugin.lastUpdateInfo": "Initial release",
   "plugin.description": "GPT integration for research, summarization, etc.",
   "plugin.author": "Aaron @scrollpointclick with a little encouragement from @dwertheimer",
@@ -83,6 +83,15 @@
       "arguments": []
     },
     {
+      "name": "Create Research Dig Site",
+      "description": "Create a new Research Dig Site",
+      "jsFunction": "createResearchDigSite",
+      "alias": [
+        "dig"
+      ],
+      "arguments": []
+    },
+    {
       "name": "Create Research Request",
       "description": "Research with GPT-3 @ OpenAI",
       "jsFunction": "createResearchRequest",
@@ -156,6 +165,13 @@
       "type": "string",
       "description": "Select the desired directory to store generated research in.",
       "default": "/"
+    },
+    {
+      "title": "AI Tools Directory",
+      "key": "aiToolsDirectory",
+      "type": "string",
+      "description": "Select the desired directory to store the AI Tools in.",
+      "default": "AI - Tools"
     },
     {
       "title": "BulletsAI Summary Paragraphs",

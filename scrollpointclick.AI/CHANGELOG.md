@@ -4,6 +4,19 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.1.91] - 2022-12-13 (@scrollpointclick)
+
+#### **Added**
+- Added AI - Tools folder
+  - Can be set in the preferences
+- Added createResearchDigSite function that prompts user for their initial search query.
+  - Then creates a titled page in the AI - Tools folder
+  - Runs the bulletsAI with their query.
+
+#### **Known Issues** 
+- Currently, the Remix button does not output the prompt properly on the other side of the request. It does, however, execute the prompt properly behind the scenes. This is a visual bug and is annoying me enough to fix it soon.
+
+
 [0.1.9] - 2022-12-13 (@scrollpointclick)
 
 #### **Changed**
