@@ -4,7 +4,34 @@
 
 See Plugin [README](https://github.com/NotePlan/plugins/blob/main/np.MeetingNotes/README.md) for details on available commands and use case.
 
+## [1.1.5] - 2022-12-13 (@jgclark)
+
+- fix flow erorrs
+
+## [1.1.4] - 2022-12-12 (@eduardme)
+
+- under the hood changes to allow call by template's title as well as filename
+
+## [1.1.2] - 2022-12-06 (@jgclark)
+
+- Further refined error reporting on bad templates to help people fix them
+- improved jsdoc a little more
+- use np.Templating::getAttributes instead of calling fm() directly
+
+## [1.1.1] - 2022-12-06 (@jgclark)
+
+- Make newMeetingNoteFromEventID() better at handling bad template defintions
+- improved JSDoc where I could
+
+## [1.1.0] - 2022-12-06 (@dwertheimer)
+
+- Added newMeetingNoteFromEventID() to be called via xcallback
+- Made newMeetingNote not hidden anymore (allow people to select event/note)
+- Changed the order of selection (meeting first then template)
+- Fixed a lot of Flow defs
+
 ## [0.1.2] - 2022-08-16 (@dwertheiemr)
+
 - Commented out DataStore.invokePluginCommandByName
 - Other minor changes
 
