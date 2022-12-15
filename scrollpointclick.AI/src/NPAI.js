@@ -7,6 +7,7 @@
  */
 
 import pluginJson from '../plugin.json'
+import { bulletsAI } from './BulletsAI-Main'
 import { 
   calculateCost, formatResearch, formatSummaryRequest, 
   formatResearchListRequest, formatQuickSearchRequest, 
@@ -23,7 +24,7 @@ import { intro, learningOptions, openAILearningWizard, modelsInformation, extern
  */
 
 type DallERequestOptions = { prompt?: string, n?: number, size?: string, response_format?: string, user?: string }
-type CompletionsRequest = { model: string, prompt?: string, max_tokens?: number, user?: string, suffix?: string, temperature?: string, top_p?: string, n?: number }
+export type CompletionsRequest = { model: string, prompt?: string, max_tokens?: number, user?: string, suffix?: string, temperature?: string, top_p?: string, n?: number }
 type ResearchListResult = { initialQuery: string, currentQuery: string, selection?: string, options?: [string] }
 
 /*
@@ -145,16 +146,16 @@ export async function chooseQuickSearchOption(query: string, summary: string): P
   return selection
 }
 
-/**
- * Prompt for new research tunnel
- * 
- */
-export async function createResearchDigSite() {
-  const subject = await CommandBar.showInput('Type in your subject..', 'Start Research')
-  DataStore.newNoteWithContent(`# ${subject} Research\n`, `${aiToolsDirectory}`, `${subject}.txt`) 
-  await Editor.openNoteByFilename(`${aiToolsDirectory}/${subject}.txt`)
-  DataStore.invokePluginCommandByName(`Bullets AI`, `scrollpointclick.AI`, [`${subject}`])
-}
+// /**
+//  * Prompt for new research tunnel
+//  * 
+//  */
+// export async function createResearchDigSite() {
+//   const subject = await CommandBar.showInput('Type in your subject..', 'Start Research')
+//   DataStore.newNoteWithContent(`# ${subject} Research\n`, `${aiToolsDirectory}`, `${subject}.txt`) 
+//   await Editor.openNoteByFilename(`${aiToolsDirectory}/${subject}.txt`)
+//   DataStore.invokePluginCommandByName(`Bullets AI`, `scrollpointclick.AI`, [`${subject}`])
+// }
 
 /**
  * Ask for a prompt and n results from user
@@ -602,7 +603,7 @@ export async function setPrompts(text: string, linkText: string = '') {
   return prompt, linkPrompt, listPrompt
 }
 
-export async function bulletsAI(inputText: string = '', remixText: string = '', initialSubject: string = '', userIn: string = '') {
+export async function bulletsAI1(inputText: string = '', remixText: string = '', initialSubject: string = '', userIn: string = '') {
   try {
 
     const start = new Date()
