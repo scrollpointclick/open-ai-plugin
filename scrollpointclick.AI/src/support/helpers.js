@@ -143,6 +143,7 @@ export async function formatFurtherLink(text: string) {
  */
 export async function formatBulletSummary(subject: string, summary: string, link: string, keyTerms: string, remixText: string = '') {
   logDebug(pluginJson, `\n\nformatBulletSummary\nSubject: ${subject}\nResponse: ${summary}\nLink: ${link})}`)
+  
   let title = subject.replace('-', '')
   title = title.trim()
   const filePath = Editor.filepath
@@ -152,13 +153,18 @@ export async function formatBulletSummary(subject: string, summary: string, link
 
   const remixSubtitleParts = remixText.split('in the context of')
   let remixedSubtitle = `${title}`
-  for (var index in remixSubtitleParts) {
-    if (index > 0) {
-      const trimmedSubtitlePart = remixSubtitleParts[index].trim()
-      const remixBackLink = createPrettyOpenNoteLink(`${trimmedSubtitlePart}`, Editor.filename, true, `${trimmedSubtitlePart}`)
-      remixedSubtitle = `${remixedSubtitle} in the context of ${remixBackLink}`
+  if (!remixText) {
+    for (var index in remixSubtitleParts) {
+      if (index > 0) {
+        const trimmedSubtitlePart = remixSubtitleParts[index].trim()
+        const remixBackLink = createPrettyOpenNoteLink(`${trimmedSubtitlePart}`, Editor.filename, true, `${trimmedSubtitlePart}`)
+        remixedSubtitle = `${remixedSubtitle} in the context of ${remixBackLink}`
+      }
     }
+  } else {
+    remixedSubtitle = remixText
   }
+  
 
   const formattedLink = `[Learn More](${link}})\n`
   let splitKeyTermsParts = keyTerms.split(',')
@@ -269,4 +275,13 @@ export function formatSummaryRequest(text: string): string {
   Summary:
 `
   return promptOut
+}
+
+/**
+ * Get the model list from OpenAI and ask the user to choose one
+ * @returns {string|null} the model ID chosen
+ */
+export async function adjustPreferences() {
+  const settings = await DataStore.settings
+  logDebug(pluginJson, `Settings:\n\n${settings}\n`)
 }

@@ -104,6 +104,8 @@ export async function makeRequest(component: string, requestType: string = 'GET'
   return null
 }
 
+
+
 /**
  * Get the model list from OpenAI and ask the user to choose one
  * @returns {string|null} the model ID chosen
@@ -149,7 +151,7 @@ export async function chooseQuickSearchOption(query: string, summary: string): P
  */
 export async function createResearchDigSite() {
   const subject = await CommandBar.showInput('Type in your subject..', 'Start Research')
-  DataStore.newNoteWithContent(`# ${subject} Research\n\n`, `${aiToolsDirectory}`, `${subject}.txt`) 
+  DataStore.newNoteWithContent(`# ${subject} Research\n`, `${aiToolsDirectory}`, `${subject}.txt`) 
   await Editor.openNoteByFilename(`${aiToolsDirectory}/${subject}.txt`)
   DataStore.invokePluginCommandByName(`Bullets AI`, `scrollpointclick.AI`, [`${subject}`])
 }
@@ -590,6 +592,16 @@ export async function learnMore(learningTopic: Object) {
   }
 }
 
+
+// Start pulling bulletsAI into functions...
+export async function setPrompts(text: string, linkText: string = '') {
+  let prompt = await formatBullet(text)
+  const linkPrompt = await formatBulletLink((linkText) ? linkText : text)
+  const listPrompt = await formatBulletKeyTerms(text)
+  logError(pluginJson, `setting Prompts: \n\n ${prompt}\n${linkPrompt}\n${listPrompt}`)
+  return prompt, linkPrompt, listPrompt
+}
+
 export async function bulletsAI(inputText: string = '', remixText: string = '', initialSubject: string = '', userIn: string = '') {
   try {
 
@@ -608,10 +620,11 @@ export async function bulletsAI(inputText: string = '', remixText: string = '', 
 
         } else if (lineType == 'list') {
           if (text != '') {
-              logDebug(pluginJson, `is:\n ${text}`) 
+              // logDebug(pluginJson, `is:\n ${text}`) 
               let prompt = await formatBullet(text)
               const linkPrompt = await formatBulletLink(text)
               const listPrompt = await formatBulletKeyTerms(text)
+              // let prompt, linkPrompt, listPrompt = await setPrompts(text)
 
               logDebug(pluginJson, `bulletsAI got the formatted prompt:\n\n${prompt}`)
             
@@ -671,11 +684,13 @@ export async function bulletsAI(inputText: string = '', remixText: string = '', 
       if (remixText != '' && remixText != null) {
         // logError(pluginJson, `\n\In a REMIX\n`)
         logDebug(pluginJson, `bulletsAI got the remixed text:\n\n${remixText}`)
+        // let prompt, linkPrompt, listPrompt = await setPrompts(remixText, text)
         prompt = await formatBullet(remixText)
         linkPrompt = await formatBulletLink(text)
         listPrompt = await formatBulletKeyTerms(remixText)
       } else {
         logDebug(pluginJson, `bulletsAI got the text:\n\n${text}`)
+        // let prompt, linkPrompt, listPrompt = await setPrompts(text)
         prompt = await formatBullet(text)
         linkPrompt = await formatBulletLink(text)
         listPrompt = await formatBulletKeyTerms(text)

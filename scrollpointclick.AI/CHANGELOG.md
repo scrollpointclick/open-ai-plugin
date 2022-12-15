@@ -4,6 +4,18 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.1.92] - 2022-12-14 (@scrollpointclick)
+
+#### **Fixed**
+- Remixes should now generate the proper subtitle text
+
+#### **Known Issues**
+- Subtitle text is not properly creating backlinks.
+- At first generation, the Title of the page is altered and turned into a backlink.
+- Inconsistency with the generation of back links for existing "Go Further" bullets.
+- The Go Further section doesn't seem to be reading the full context information.
+
+
 [0.1.91] - 2022-12-13 (@scrollpointclick)
 
 #### **Added**

@@ -40,6 +40,15 @@
       "arguments": []
     },    
     {
+      "name": "Adjust Preferences",
+      "description": "Adjust plugin preferences",
+      "jsFunction": "adjustPreferences",
+      "alias": [
+        "apref"
+      ],
+      "arguments": []
+    },
+    {
       "name": "Create AI Images",
       "description": "Generate images with DALL-E @ OpenAI",
       "jsFunction": "createAIImages",
