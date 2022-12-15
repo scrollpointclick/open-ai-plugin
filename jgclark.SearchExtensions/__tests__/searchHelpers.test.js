@@ -257,6 +257,7 @@ describe('searchHelpers.js tests', () => {
         searchTermsRepArr: ['TERM1'],
         resultNoteAndLineArr: [],
         resultCount: 0,
+        fullResultCount: 0,
         resultNoteCount: 0,
       }
       const result = applySearchOperators(combinedResults)
@@ -275,6 +276,7 @@ describe('searchHelpers.js tests', () => {
         searchTermsRepArr: ['TERM2', '-TERM2'],
         resultNoteAndLineArr: [],
         resultCount: 0,
+        fullResultCount: 0,
         resultNoteCount: 0,
       }
       const result = applySearchOperators(combinedResults)
@@ -295,6 +297,7 @@ describe('searchHelpers.js tests', () => {
           { noteFilename: 'file2', line: '2.1 includes TERM1 and TERM2', index: 0 },
         ],
         resultCount: 3,
+        fullResultCount: 3,
         resultNoteCount: 2,
       }
       const result = applySearchOperators(combinedResults)
@@ -321,6 +324,7 @@ describe('searchHelpers.js tests', () => {
           { noteFilename: 'file7', line: '7.3 has TERM3', index: 0 },
         ],
         resultCount: 5,
+        fullResultCount: 5,
         resultNoteCount: 2,
       }
       const result = applySearchOperators(combinedResults)
@@ -355,6 +359,7 @@ describe('searchHelpers.js tests', () => {
           { noteFilename: 'file7', line: '7.3 has TERM3', index: 0 },
         ],
         resultCount: 10,
+        fullResultCount: 10,
         resultNoteCount: 4,
       }
       const result = applySearchOperators(combinedResults)
@@ -386,6 +391,10 @@ describe('searchHelpers.js tests', () => {
     test('single word term', () => {
       const result = normaliseSearchTerms('xxx')
       expect(result).toEqual(['xxx'])
+    })
+    test('domain twitter.com', () => {
+      const result = normaliseSearchTerms('twitter.com')
+      expect(result).toEqual(['twitter.com'])
     })
     test('xxx yyy', () => {
       const result = normaliseSearchTerms('xxx yyy')
@@ -485,23 +494,22 @@ describe('searchHelpers.js tests', () => {
       const result = validateAndTypeSearchTerms('-term1 -term2 -term3')
       expect(result).toEqual([])
     })
-    test('single term string', () => {
+    test("single term string 'term1'", () => {
       const result = validateAndTypeSearchTerms('term1')
       expect(result).toEqual([{ term: 'term1', type: 'may', termRep: 'term1' }])
     })
-    test('single term array', () => {
-      const result = validateAndTypeSearchTerms('term1')
-      expect(result).toEqual([{ term: 'term1', type: 'may', termRep: 'term1' }])
+    test("single term string 'twitter.com'", () => {
+      const result = validateAndTypeSearchTerms('twitter.com')
+      expect(result).toEqual([{ term: 'twitter.com', type: 'may', termRep: 'twitter.com' }])
     })
-    test('two term string', () => {
-      const result = validateAndTypeSearchTerms('term1 "term two"')
+    test("single quoted term string 'test string'", () => {
+      const result = validateAndTypeSearchTerms("'test string'")
       expect(result).toEqual([
-        { term: 'term1', type: 'may', termRep: 'term1' },
-        { term: 'term', type: 'must', termRep: '+term' },
-        { term: 'two', type: 'must', termRep: '+two' },
+        { term: 'test', type: 'must', termRep: '+test' },
+        { term: 'string', type: 'must', termRep: '+string' },
       ])
     })
-    test('two term array', () => {
+    test('two term string', () => {
       const result = validateAndTypeSearchTerms('term1 "term two"')
       expect(result).toEqual([
         { term: 'term1', type: 'may', termRep: 'term1' },
@@ -545,6 +553,7 @@ describe('searchHelpers.js tests', () => {
         resultNoteAndLineArr: [],
         resultCount: 0,
         resultNoteCount: 0,
+        fullResultCount: 0,
       }
       const config: $Shape<SearchConfig> = {
         resultStyle: 'NotePlan',

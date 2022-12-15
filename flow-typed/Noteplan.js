@@ -1,23 +1,5 @@
 // @flow
 
-type FetchOptions = {
-  /* all optional */
-  headers?: { [string]: string } /* key/value pairs of headers for the request */,
-  method?: string /* GET, POST, PUT, DELETE, etc. */,
-  body?: string /* body for a POST or PUT request. is a string so needs to be JSON.stringified */,
-  timeout?: number /* timeout in ms */,
-}
-
-/**
- * Request a URL from a server and return the result as a string or null if no response
- * If you want to get detailed errors (e.g. no internet connection, etc.), use old-school promises instead, e.g.:
- * fetch('https://example.com').then((result) => { console.log(result) }).catch((error) => { console.log(error) })
- * If your response is a JSON response string, you should run JSON.parse(result) on the result.
- * @param {string} url
- * @param {FetchOptions} options (optional) options to pass to the fetch() call: method, headers, body, timeout (in ms)
- */
-declare function fetch(url: string, options?: FetchOptions): Promise<string> /* do not run with await. see documentation */
-
 /*
  * # How Flow Definitions work:
  *
@@ -570,17 +552,22 @@ declare class DataStore {
    * You can use `paragraph[0].note` to access the note behind it and make updates via `paragraph[0].note.updateParagraph(paragraph[0])` if you make changes to the content, type, etc (like checking it off as type = "done").
    * Note: Available from v3.5.2
    * @param {TParagraph}
-   * @return {[TParagraph]}
+   * @return {Array<TParagraph>}
    */
   static referencedBlocks(paragraph: TParagraph): TParagraph;
 
   /**
-   * Loads all available plugins asynchronously from the GitHub repository and returns a list.
+   * Loads all available plugins asynchronously from the GitHub repository and returns a list. 
    * You can show a loading indicator using the first parameter (true) if this is part of some user interaction. Otherwise, pass "false" so it happens in the background.
-   * Note: Available from v3.5.2
-   * @param {boolean}
+   * Set `showHidden` to true if it should also load hidden plugins. Hidden plugins have a flag `isHidden`.
+   * Set the third parameter `skipMatchingLocalPlugins` to true if you want to see only the available plugins from GitHub and not merge the data with the locally available plugins. Then the version will always be that of the plugin that is available online.
+   * Note: Available from NotePlan v3.5.2; 'skipMatchingLocalPlugins' added v3.7.2 build 926
+   * @param {boolean} showLoading?
+   * @param {boolean} showHidden?
+   * @param {boolean} skipMatchingLocalPlugins?
+   * @return {Promise<any>} pluginList
    */
-  static listPlugins(showLoading: boolean): Promise<void>;
+  static listPlugins(showLoading, showHidden, skipMatchingLocalPlugins): Promise < Array < PluginObject >>;
   /**
    * Installs a given plugin (load a list of plugins using `.listPlugins` first). If this is part of a user interfaction, pass "true" for `showLoading` to show a loading indicator.
    * Note: Available from v3.5.2
@@ -1852,6 +1839,24 @@ declare class HTMLView {
    */
   static showWindow(html: string, title: string, width?: number, height?: number): void;
 }
+
+type FetchOptions = {
+  /* all optional */
+  headers?: { [string]: string } /* key/value pairs of headers for the request */,
+  method?: string /* GET, POST, PUT, DELETE, etc. */,
+  body?: string /* body for a POST or PUT request. is a string so needs to be JSON.stringified */,
+  timeout?: number /* timeout in ms */,
+}
+
+/**
+ * Request a URL from a server and return the result as a string or null if no response
+ * If you want to get detailed errors (e.g. no internet connection, etc.), use old-school promises instead, e.g.:
+ * fetch('https://example.com').then((result) => { console.log(result) }).catch((error) => { console.log(error) })
+ * If your response is a JSON response string, you should run JSON.parse(result) on the result.
+ * @param {string} url
+ * @param {FetchOptions} options (optional) options to pass to the fetch() call: method, headers, body, timeout (in ms)
+ */
+declare function fetch(url: string, options?: FetchOptions): Promise<string> /* do not run with await. see documentation */
 
 // Every function made available must be assigned to `globalThis`
 // This type ensures that only functions are made available as plugins
