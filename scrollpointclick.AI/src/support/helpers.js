@@ -217,7 +217,7 @@ export async function formatBulletSummary1(subject: string, summary: string, lin
  * Currently under construction.
  */
 export async function formatBullet(promptIn: string) {
-  let prompt = `Write a summary on the topic of of ${promptIn}. The response should be ${bulletsSummaryParagraphs} paragraphs in length.
+  let prompt = `Write a summary on the topic of ${promptIn}. The response should be ${bulletsSummaryParagraphs} paragraphs in length.
   Summary:
   `
   // logError(pluginJson, `\n\n\n${prompt}\n\n\n`)

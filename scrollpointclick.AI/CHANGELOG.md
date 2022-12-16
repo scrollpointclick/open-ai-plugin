@@ -4,6 +4,26 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.1.93] - 2022-12-15 (@scrollpointclick)
+
+#### **Added**
+- @dwertheimer was kind of enough to write up a mock fetch request for me so I can stop flinging money at the wall with every test request. 
+
+#### **Changed**
+- Continuing to rework the BulletsAI so that future generations can have any hope of understanding it.
+
+#### **Fixed**
+- /dig command once again generates a new note and begins research properly.
+
+#### **Known Issues**
+- Remix currently does not work.
+- Clicking the links does work, but does not properly contextualize the request.
+- Not showing which links clicked.
+- Not showing subtitle.
+- JSON not saving properly.
+- Hopefully have these things all addressed tomorrow.
+
+
 [0.1.92] - 2022-12-14 (@scrollpointclick)
 
 #### **Fixed**
