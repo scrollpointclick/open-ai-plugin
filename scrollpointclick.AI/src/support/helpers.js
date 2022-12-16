@@ -78,7 +78,7 @@ Each concept should include a Wikipedia link.
 The further reading links should be from Goodreads.com.
 The first heading should be "# ${subject}"
 The second heading should be "## Key Concepts"
-For each Key Concept, the heading should be "### [key concept in brakcets](Wikipedia link)" followed by a brief summary.
+For each Key Concept, the heading should be "### [key concept in brackets](Wikipedia link)" followed by a brief summary.
 The fourth heading should be "#### Further Reading" followed by a Goodreads.com link for a recommended book on the topic.
 `
   return promptOut
@@ -141,7 +141,7 @@ export async function formatFurtherLink(text: string) {
  * @params (Object) learningTopic - General object that directs the behavior of the function.
  * Currently under construction.
  */
-export async function formatBulletSummary(subject: string, summary: string, link: string, keyTerms: string, remixText: string = '') {
+export async function formatBulletSummary1(subject: string, summary: string, link: string, keyTerms: string, remixText: string = '') {
   logDebug(pluginJson, `\n\nformatBulletSummary\nSubject: ${subject}\nResponse: ${summary}\nLink: ${link})}`)
   
   let title = subject.replace('-', '')

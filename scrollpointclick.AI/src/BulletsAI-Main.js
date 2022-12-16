@@ -1,7 +1,17 @@
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import pluginJson from '../plugin.json'
 import { makeRequest } from './NPAI'
-import { formatBullet, formatBulletKeyTerms, formatFurtherLink, formatBulletSummary } from './support/helpers'
+import { formatBullet, formatBulletKeyTerms, formatFurtherLink } from './support/helpers'
+import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
+
+
+// import response1 from './testJSONs/response1.json' // a JSON file with a sample server response
+// import { FetchMock, type FetchMockResponse } from '@mocks/Fetch.mock'
+// const OVERRIDE_FETCH = true // set to true to override the global fetch() function with fake responses passed below
+// if (OVERRIDE_FETCH) {
+//   const fm = new FetchMock([{ match: { url: 'foo', optionsBody: 'bar' }, response: JSON.stringify(response1) }]) // add one object to array for each mock response
+//   fetch = async (url, opts) => fm.fetch(url, opts) //override the global fetch
+// }
 
 const { apiKey, defaultModel, showStats, max_tokens, researchDirectory, aiToolsDirectory, bulletsAIKeyTerms, bulletsSummaryParagraphs} = DataStore.settings
 
@@ -11,7 +21,10 @@ const completionsComponent = 'completions'
 
 const testJson = {
     'initialSubject': 'Grizzly Bears',
-    'followedLinks': [
+    'unclickedLinks': [
+        'Territories'
+    ],
+    'clickedLinks': [
         'Alaskan Wilderness',
         'Diet'
     ],
@@ -70,13 +83,14 @@ export async function bulletsAI(
         const state = await checkInitialState(promptIn, prevSubjectIn, initialSubject, isCustomRemix)
         switch (state) {
             case 'initialQuery':
-                logDebug(pluginJson, `\n----\n-----bulletsAI-----\nInitial Query\nLink: ${promptIn}\n----\n`)
+                // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nInitial Query\nLink: ${promptIn}\n----\n`)
+                // customDebug(`bulletsAI`, promptIn)
                 summarizedQueries = initializeData(promptIn)
-                logDebug(pluginJson, `\n----\n-----bulletsAI-----\nSummarized Query\nLink: ${summarizedQueries}\n----\n`)
+                // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nSummarized Query\nLink: ${summarizedQueries}\n----\n`)
                 promptMain = await formatBullet(promptIn)
-                logDebug(pluginJson, `\n----\n-----bulletsAI-----\nMain Prompt\nLink: ${promptMain}\n----\n`)
+                // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nMain Prompt\nLink: ${promptMain}\n----\n`)
                 promptList = await formatBulletKeyTerms(promptIn)
-                logDebug(pluginJson, `\n----\n-----bulletsAI-----\nList Prompt\nLink: ${promptList}\n----\n`)
+                // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nList Prompt\nLink: ${promptList}\n----\n`)
                 
             case 'followedLink':
                 logDebug(pluginJson, `\n----\n-----bulletsAI-----\nFollowed Link\nLink: ${promptIn}\nPrevious Subject: ${prevSubjectIn}----\n`)
@@ -97,15 +111,30 @@ export async function bulletsAI(
             default:
                 logError(pluginJson, 'No state detected. Bailing out.')
         }
-        logError(pluginJson, "THIS HAPPENED")
         let { reqBody, reqListBody } = await generateReqBodies(promptMain, promptList, chosenModel)
         let { request, listRequest } = await generateRequests(reqBody, reqListBody, chosenModel)
         const summary = await parseResponse(request, listRequest, promptIn)
-        clo(summary, 'Summary')
+        // clo(summary, 'Summary')
 
     } catch (error) {
         logError(pluginJson, error)
     }
+}
+
+/**
+ * Generates a custom debug log
+ * @param {string} callingFunction - the name of the calling function
+ * @param {[Object]?} values - optional values to return
+ * Currently under construction.
+ */
+async function customDebug(callingFunction: string, values?: [Object]) {
+    valueString = ''
+    if (values) {
+        for (var index in values) {
+            valueString += `values[index]\n`
+        }
+    }
+    logDebug(pluginJson, `\n----\nCalling Function: ${callingFunction}\n\nValues:\n${valueString}`)
 }
 
 /**
@@ -135,11 +164,13 @@ async function parseResponse(request: Object | null, listRequest: Object | null,
     let summary = ''
     if (request) {
         const responseText = request.choices[0].text
-        const keyTermsList = listRequest.choices[0].text
+        const keyTermsList = listRequest.choices[0].text.split(',')
         let keyTerms = []
         let jsonData = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
-        let keyTermsData = jsonData['untouchedLinks']
+        clo(jsonData, 'jsonData')
+        let keyTermsData = jsonData['unclickedLinks']
         for (var index in keyTermsList) {
+            keyTermsList[index].replace('\n', '')
             keyTermsData.push(keyTermsList[index])
         }
         DataStore.saveJSON(jsonData, `Query Data/${Editor.title}/data.json`)
@@ -172,7 +203,12 @@ function initializeData(query?: string) {
     if (!loadedJSON) {
         if (query) {
             logDebug(pluginJson, `\n----\n-----initializeData-----\nAttempting to save...\n${query}\n\n----\n`)
-            const newJSON = {'initialSubject': query}
+            let newJSON = {
+                'initialSubject': query,
+                'unclickedLinks': [],
+                'clickedLinks': [],
+                'remixes': []
+            }
             DataStore.saveJSON(newJSON, `Query Data/${Editor.title}/data.json`)
             loadedJSON = newJSON
             return loadedJSON
@@ -181,4 +217,21 @@ function initializeData(query?: string) {
         logDebug(pluginJson, `\n----\n-----initializeData-----\nLoaded!\n\n----\n`)
     }
     return loadedJSON
+}
+
+/**
+ * Formats the bullet summary response
+ * @params (Object) learningTopic - General object that directs the behavior of the function.
+ * Currently under construction.
+ */
+export async function formatBulletSummary(subject: string, summary: string, link: string, keyTerms: string, remixText: string = '') {
+    logDebug(pluginJson, `\n\nformatBulletSummary\nSubject: ${subject}\nResponse: ${summary}\nLink: ${link})}`)
+    
+    let title = subject.replace('-', '')
+    title = title.trim()
+    const filePath = Editor.filepath
+  
+    const remixPrompt = createPrettyRunPluginLink(`Remix`, 'scrollpointclick.AI', 'Remix Query', `${subject}`)
+    const remixTitle = createPrettyOpenNoteLink('๏', Editor.filename, true, subject)
+
 }

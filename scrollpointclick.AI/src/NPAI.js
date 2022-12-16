@@ -7,12 +7,12 @@
  */
 
 import pluginJson from '../plugin.json'
-import { bulletsAI } from './BulletsAI-Main'
+import { bulletsAI, formatBulletSummary } from './BulletsAI-Main'
 import { 
   calculateCost, formatResearch, formatSummaryRequest, 
   formatResearchListRequest, formatQuickSearchRequest, 
   modelOptions, generateREADMECommands, formatBullet,
-  formatBulletLink, formatBulletSummary, formatBulletKeyTerms,
+  formatBulletLink, formatBulletKeyTerms,
   formatFurtherLink
 } from './support/helpers' // FIXME: Is there something better than this growth?
 import { chooseOption, showMessage, showMessageYesNo, getInput } from '@helpers/userInput'
