@@ -697,6 +697,10 @@ type PluginCommandObject = {
    */
   +pluginName: string,
   /**
+   * Whether this is marked as a hidden command (getter)
+   */
+  +isHidden: boolean,
+  /**
    * List of optional argument descriptions for the specific command (getter). Use this if you want to invoke this command from another plugin to inform the user what he nees to enter for example.
    */
   +arguments: $ReadOnlyArray<string>,
@@ -739,6 +743,10 @@ type PluginObject = {
    */
   +isOnline: boolean,
   /**
+   * Whether this plugin is marked as hidden (getter)
+   */
+  +isHidden: boolean,
+  /**
    * Script filename that contains the code for this plugin (like script.js) (getter)
    */
   +script: string,
@@ -750,7 +758,7 @@ type PluginObject = {
    * A list of available commands for this plugin. (getter)
    * @type {PluginCommandObject}
    */
-  +commands: PluginCommandObject,
+  +commands: $ReadOnlyArray<PluginCommandObject>,
 }
 
 /**
