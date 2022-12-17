@@ -4,29 +4,11 @@ import { makeRequest } from './NPAI'
 import { formatBullet, formatBulletKeyTerms, formatFurtherLink } from './support/helpers'
 import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
 
-
-
-
 const { apiKey, defaultModel, showStats, max_tokens, researchDirectory, aiToolsDirectory, bulletsAIKeyTerms, bulletsSummaryParagraphs} = DataStore.settings
 
 const availableModels = ['text-davinci-003', 'text-curie-001', 'text-babbage-001', 'text-ada-001']
 type CompletionsRequest = { model: string, prompt?: string, max_tokens?: number, user?: string, suffix?: string, temperature?: string, top_p?: string, n?: number }
 const completionsComponent = 'completions'
-
-const testJson = {
-    'initialSubject': 'Grizzly Bears',
-    'unclickedLinks': [
-        'Territories'
-    ],
-    'clickedLinks': [
-        'Alaskan Wilderness',
-        'Diet'
-    ],
-    'remixes': [
-        'Documentaries about Grizzly Bears',
-        'Grizzly Bears and the Food Chain'
-    ]
-}
 
 /* ACTION PLAN
 // Get Input Text
@@ -52,6 +34,10 @@ export async function createResearchDigSite() {
     DataStore.invokePluginCommandByName(`Bullets AI`, `scrollpointclick.AI`, [`${subject}`])
   }
 
+  export async function createRemix() {
+    return await CommandBar.showInput('Type in your remix request', 'Start Remix')
+  }
+
 /**
  * Generative Research Tree
  * @param {string} promptIn - Prompt to generate from
@@ -64,50 +50,50 @@ export async function bulletsAI(
     promptIn: string, 
     prevSubjectIn: string | null = '', 
     initialSubject: string | null = '', 
-    isCustomRemix: bool = false, 
+    isCustomRemix: bool = false,
+    fullHistory?: string = '',
+    useFullHistory?: bool = false,
+    fullHistoryText?: string = '',
     userIn: string = '') {
 
     try {
         const start = new Date()
         const chosenModel = (defaultModel != 'Choose Model') ? defaultModel : 'text-davinci-003'
         const paragraphs = Editor.paragraphs
-        let summarizedQueries = ''
         let promptMain = ''
         let promptList = ''
         const state = await checkInitialState(promptIn, prevSubjectIn, initialSubject, isCustomRemix)
         switch (state) {
             case 'initialQuery':
-                // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nInitial Query\nLink: ${promptIn}\n----\n`)
-                summarizedQueries = initializeData(promptIn)
-                // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nSummarized Query\nLink: ${summarizedQueries}\n----\n`)
+                initializeData(promptIn)
                 promptMain = await formatBullet(promptIn)
-                // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nMain Prompt\nLink: ${promptMain}\n----\n`)
                 promptList = await formatBulletKeyTerms(promptIn)
-                // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nList Prompt\nLink: ${promptList}\n----\n`)
+                break
                 
             case 'followedLink':
-                // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nFollowed Link\nLink: ${promptIn}\nPrevious Subject: ${prevSubjectIn}----\n`)
-                summarizedQueries = initializeData()
-                promptMain = await formatBullet(promptIn)
-                // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nMain Prompt\nLink: ${promptMain}\n----\n`)
+                logError(pluginJson, `\n----\n-----bulletsAI-----\nFollowed Link\nLink: ${promptIn}\nPrevious Subject: ${prevSubjectIn}\n----\n\n${typeof(useFullHistory)}`)
+                initializeData()
+                updateClickedLinksJsonData(promptIn)
+                updateBulletLinks()
+                promptMain = await formatBullet((useFullHistory == 'true') ? fullHistoryText : promptIn, (useFullHistory == 'true') ? '' : prevSubjectIn)
                 promptList = await formatBulletKeyTerms(promptIn)
-                // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nList Prompt\nLink: ${promptList}\n----\n`)
+                break
                 
             case 'remix':
-                logDebug(pluginJson, `\n----\n-----bulletsAI-----\nRemix\nRemix Prompt: ${promptIn}\nPrevious Subject: ${prevSubjectIn}----\n`)
-                // summarizedQueries = initializeData()
+                promptIn = await createRemix()
+                initializeData()
                 promptMain = await formatBullet(promptIn)
-                // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nMain Prompt\nLink: ${promptMain}\n----\n`)
                 promptList = await formatBulletKeyTerms(promptIn)
-                // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nList Prompt\nLink: ${promptList}\n----\n`)
-                
-            default:
-                logError(pluginJson, 'No state detected. Bailing out.')
+                break
         }
-        let { reqBody, reqListBody } = await generateReqBodies(promptMain, promptList, chosenModel)
+        const { newFullHistoryText, formattedSubtitle } = formatSubtitle(promptIn, (prevSubjectIn) ? prevSubjectIn : '', fullHistory, useFullHistory, fullHistoryText)
+        if (useFullHistory == 'true') {
+            promptMain = await formatBullet(newFullHistoryText)
+        }
+        let { reqBody, reqListBody } = await generateReqBodies((useFullHistory == true) ? newFullHistoryText : promptMain, promptList, chosenModel)
         let { request, listRequest } = await generateRequests(reqBody, reqListBody, chosenModel)
-        const summary = await parseResponse(request, listRequest, promptIn)
-        // clo(summary, 'Summary')
+        const summary = await parseResponse(request, listRequest, promptIn, '', formattedSubtitle, newFullHistoryText)
+        
         Editor.appendParagraph(summary)
 
     } catch (error) {
@@ -125,15 +111,11 @@ export async function bulletsAI(
  * Currently under construction.
  */
 async function checkInitialState(promptIn: string, prevSubjectIn: string | null, initialSubject: string | null, isCustomRemix: bool) {
-    // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nChecking Initial State\n----\n`)
-    if (isCustomRemix) {
-        // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nremix\n----\n`)
+    if (isCustomRemix == true) {
         return 'remix'
-    } else if (prevSubjectIn) {
-        // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nfollowedLink\n----\n`)
+    } else if (prevSubjectIn && isCustomRemix != true) {
         return 'followedLink'
     } else {
-        // logDebug(pluginJson, `\n----\n-----bulletsAI-----\ninitialQuery\n----\n`)
         return 'initialQuery'
     }
 }
@@ -144,11 +126,9 @@ async function checkInitialState(promptIn: string, prevSubjectIn: string | null,
  * @returns {*}
  */
 function initializeData(query?: string) {
-    // logDebug(pluginJson, `\n----\n-----initializeData-----\nAttempting to load...\n${query}\n\n----\n`)
     let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
     if (!loadedJSON) {
         if (query) {
-            // logDebug(pluginJson, `\n----\n-----initializeData-----\nAttempting to save...\n${query}\n\n----\n`)
             let newJSON = {
                 'initialSubject': query,
                 'unclickedLinks': [],
@@ -165,29 +145,81 @@ function initializeData(query?: string) {
     return loadedJSON
 }
 
+function updateClickedLinksJsonData(clickedLink: string) {
+    let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
+    let unclickedLinks = []
+    let clickedLinks = [clickedLink]
+    for (const clicked of loadedJSON['clickedLinks']) {
+        // logError(pluginJson, `CLICKED == ${clicked}`)
+        clickedLinks.push(clicked)
+    }
+    for (const unclickedLink of loadedJSON['unclickedLinks']) {
+        const cleanLink = unclickedLink.trim()
+        if (clickedLinks.includes(unclickedLink.trim())) {
+            // FIXME Should do something
+        }
+        if (unclickedLink.trim() == clickedLink.trim()) {
+            unclickedLinks.pop(clickedLink)
+        } else {
+            unclickedLinks.push(unclickedLink)
+        }
+    }
+    for (const unclickedLink of unclickedLinks) {
+        if (clickedLinks.includes(unclickedLink.trim())) {
+            unclickedLinks.pop(unclickedLink)
+        }
+    }
+    
+    loadedJSON['unclickedLinks'] = unclickedLinks.filter((v, i, a) => a.indexOf(v) === i)
+    loadedJSON['clickedLinks'] = clickedLinks.filter((v, i, a) => a.indexOf(v) === i)
+    DataStore.saveJSON(loadedJSON, `Query Data/${Editor.title}/data.json`)
+    return loadedJSON
+}
 
-async function parseResponse(request: Object | null, listRequest: Object | null, subject: string, remixText?: string = '') {
+function updateBulletLinks(keyTerm?: string = '') {
+    let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
+    let prettyKeyTerm = ''
+
+    // logError(pluginJson, `Parsing Paragraphs`)
+    for (const paragraph in Editor.paragraphs) {
+        // logError(pluginJson, `paragraph:\nTYPE: ${paragraph.type}\nCONTENT: ${paragraph.content}\n`)
+        if (Editor.paragraphs[paragraph].type == 'list' && Editor.paragraphs[paragraph].content.includes(loadedJSON['clickedLinks'])) {
+            prettyKeyTerm = createPrettyOpenNoteLink(Editor.paragraphs[paragraph].content, Editor.filename, true, Editor.paragraphs[paragraph].content)
+            // logError(pluginJson, `prettyKeyTerm: ${prettyKeyTerm}`)
+            Editor.paragraphs[paragraph].content = prettyKeyTerm
+            Editor.updateParagraph(Editor.paragraphs[paragraph])
+        }
+    }
+    if (keyTerm) {
+        prettyKeyTerm = createPrettyOpenNoteLink(keyTerm, Editor.filename, true, keyTerm)
+        return prettyKeyTerm
+    }
+        
+}
+
+
+async function parseResponse(request: Object | null, listRequest: Object | null, subject: string, remixText?: string = '', subtitle: string, fullHistoryText: string) {
     let summary = ''
     if (request) {
-        const responseText = request.choices[0].text
+        const responseText = request.choices[0].text.trim()
         const keyTermsList = listRequest.choices[0].text.split(',')
-        // clo(responseText, 'responseText\n\n\n\n\n\n\n\----------')
-        // clo(keyTermsList, 'keyTermsList')
         let keyTerms = []
-        // let jsonData = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
         let jsonData = {...DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)}
-        // clo(jsonData, 'jsonData')
-        for (const keyTerm of keyTermsList) {
-            // logDebug(pluginJson, `${keyTerm}`)
-            jsonData['unclickedLinks'].push(keyTerm)
+        for (const keyTerm of jsonData['unclickedLinks']) {
+            keyTerms.push(keyTerm)
         }
-        // clo(jsonData, 'jsonData after now writing')
+        for (const keyTerm of keyTermsList) {
+            if (!keyTerms.includes(keyTerm)) {
+            keyTerms.push(keyTerm)
+            }
+        }
+        jsonData['unclickedLinks'] = keyTerms
         DataStore.saveJSON(jsonData, `Query Data/${Editor.title}/data.json`)
-
+        // clo(subtitle, 'subtitle')
 
         const totalTokens = (request.usage.total_tokens + listRequest.usage.total_tokens)
-        summary = await formatBulletSummary(subject, responseText, keyTermsList, remixText)
-        clo(summary, 'summary after now writing')
+        summary = await formatBulletSummary(subject, responseText, keyTermsList, remixText, subtitle, fullHistoryText)
+        // clo(summary, 'summary after now writing')
         return summary
     }
 }
@@ -196,7 +228,6 @@ async function generateReqBodies(promptMain, promptList, chosenModel) {
     const reqBody: CompletionsRequest = {prompt: promptMain, model: chosenModel, max_tokens: max_tokens }
     // clo(reqBody, 'reqBody\n\n\n\n\n\n\n\----------')
     const reqListBody: CompletionsRequest = {prompt: promptList, model: chosenModel, max_tokens: max_tokens }
-    // clo(reqListBody, 'reqListBody\n\n\n\n\n\n\n\----------')
     return { reqBody, reqListBody }
 }
 
@@ -207,33 +238,65 @@ async function generateRequests(reqBody: CompletionsRequest, reqListBody: Comple
 }
 
 
-
-
-
-
-
 /*
 FORMATTING
 */
 
+function formatSubtitle(subject: string, prevSubject?: string = '', fullHistory: string, useFullHistory: bool, fullHistoryText: string) {
+    logError(pluginJson, `\n\nHERE---------${subject}\n${prevSubject}`)
+    let fullHistoryTextOut = ''
+    let backLink = ''
+    let subtitle = ''
+    let newFullHistoryLink = ''
+    if (prevSubject) {
+        
+        logError(pluginJson, useFullHistory)
+        logError(pluginJson, typeof(useFullHistory))
+        if (useFullHistory == true || useFullHistory == 'true') {
+            logError(pluginJson, useFullHistory)
+            if (fullHistory.includes(prevSubject)) {
+                logError(pluginJson, useFullHistory)
+                const prettyPrev = createPrettyOpenNoteLink(prevSubject, Editor.filename, true, prevSubject)
+                newFullHistoryLink = fullHistory.replace(prevSubject, prettyPrev)
+                logError(pluginJson, newFullHistoryLink)
+            }
+            backLink = createPrettyOpenNoteLink(prevSubject, Editor.filename, true, prevSubject)
+            fullHistoryTextOut = `${subject} in the context of ${fullHistoryText}`
+            subtitle = `${subject} in the context of ${(newFullHistoryLink) ? newFullHistoryLink : fullHistory}` 
+        } else {
+            fullHistoryTextOut = `${subject} in the context of ${prevSubject}`
+            backLink = createPrettyOpenNoteLink(prevSubject, Editor.filename, true, prevSubject)
+            subtitle = `${subject} in the context of ${backLink}`
+        }
+    } else {
+        fullHistoryTextOut = subject
+        subtitle = subject
+    }
+
+    let outputFullHistoryText = fullHistoryTextOut,
+        outputSubtitle = subtitle 
+    return { 
+        'newFullHistoryText': outputFullHistoryText,
+        'formattedSubtitle': outputSubtitle
+    }
+}
 
 /**
  * Formats the bullet summary response
  * @params (Object) learningTopic - General object that directs the behavior of the function.
  * Currently under construction.
  */
-export async function formatBulletSummary(subject: string, summary: string, keyTerms: string, remixText?: string = '') {
+export async function formatBulletSummary(subject: string, summary: string, keyTerms: string, remixText?: string = '', subtitle: string, fullHistoryText: string) {
     // logDebug(pluginJson, `\n\nformatBulletSummary\nSubject: ${subject}\nResponse: ${summary}\nLink: ${link})}`)
     
-    let title = subject.replace('-', '')
-    title = title.trim()
-    const filePath = Editor.filepath
-    const keyTermsOutput = await formatKeyTermsForSummary(keyTerms, subject, remixText)
+    // let title = subject.replace('- ', '')
+    let title = subject.trim()
+    const jsonData = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
+    const keyTermsOutput = await formatKeyTermsForSummary(keyTerms, subject, remixText, (subtitle) ? subtitle : '', fullHistoryText)
   
-    const remixPrompt = createPrettyRunPluginLink(`Remix`, 'scrollpointclick.AI', 'Remix Query', `${subject}`)
-    const remixTitle = createPrettyOpenNoteLink('๏', Editor.filename, true, subject)
-
-    let output = `## ${title}\n#### ${remixPrompt}\n${summary}\n${keyTermsOutput}`
+    const remixPrompt = createPrettyRunPluginLink(`Remix`, 'scrollpointclick.AI', 'Bullets AI', ['', subject, jsonData['initialSubject'], true])
+    // let output = `## ${title}${(subject != subtitle) ? `\n#### ${subtitle}` : ''}\n#### ${remixPrompt}\n${summary}\n${keyTermsOutput}`
+    let output = `## ${title}${(subject != subtitle) ? `\n#### ${subtitle}` : ''}\n${summary}\n${keyTermsOutput}`
     return output
 }
 
@@ -242,15 +305,40 @@ export async function formatBulletSummary(subject: string, summary: string, keyT
  * @params {[string]} keyTerms - List of key terms
  * Currently under construction.
  */
-export async function formatKeyTermsForSummary(keyTerms: [string], subject: string, remixText?: string = '') {
+export async function formatKeyTermsForSummary(keyTerms: [string], subject: string, remixText?: string = '', subtitle: string = '', fullHistoryText: string) {
     // logDebug(pluginJson, `\n\nformatBulletSummary\nSubject: ${subject}\nResponse: ${summary}\nLink: ${link})}`)
-    let keyString = ''
+    let keyString = '#### Go Deeper?\n'
     const jsonData = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
-    
+    let prettyKeyTerm = ''
+
     for (const keyTerm of keyTerms) {
         // TODO: Once JSON is working, have it check for clicked links to determine how to format the following.
-        const prettyKeyTerm = createPrettyRunPluginLink(`${keyTerm.trim()}`, 'scrollpointclick.AI', 'Bullets AI', [keyTerm.trim(), '', (remixText) ? remixText : subject, jsonData['initialSubject']])
-        keyString += `- ${prettyKeyTerm}\n`
+        if (jsonData['clickedLinks'].includes(keyTerm)) {
+            prettyKeyTerm = updateBulletLinks(keyTerm)
+            keyString = `\t${prettyKeyTerm}\n`
+        } else {
+            prettyKeyTerm = createPrettyRunPluginLink(`${keyTerm.trim()}`, 'scrollpointclick.AI', 'Bullets AI', 
+            [
+                keyTerm.trim(), 
+                `${subject}`, 
+                jsonData['initialSubject'],
+                false,
+                subtitle,
+                false,
+                fullHistoryText
+            ])
+            
+            const prettyPlus = createPrettyRunPluginLink(`╠`, 'scrollpointclick.AI', 'Bullets AI', 
+            [
+                keyTerm.trim(), 
+                (remixText) ? remixText : subject, 
+                jsonData['initialSubject'], 
+                false, 
+                subtitle, 
+                true, 
+                fullHistoryText])
+            keyString += `\t- ${prettyPlus}${prettyKeyTerm}\n`
+        }
     }
     return keyString
 }

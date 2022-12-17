@@ -4,6 +4,25 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.1.94] - 2022-12-16 (@scrollpointclick)
+
+#### **Added**
+- added Heat Transfer to the mock fetch list.
+- In the Go Deeper section, there is now a [+] (that will probably be adjusted soon for usability).
+  - Clicking this will create a new prompt by appending the selection to the full history of followed links.
+    - For example, If you had started at 'Mercury', then clicked 'Thermal Protection' and then clicked the [+] next to 'Heat Transfer in the Go Further section under 'Thermal Protection', the following prompt would be be fed back into the summary generator:
+      - 'Heat Transfer in the context of Thermal Protection in the context of Mercury.'
+- Foundations of the data saving and parsing system in place.
+
+
+#### **Fixed**
+- Links in the Go Further section now behave as expected.
+
+#### **Known Issues**
+- Remix button is not currently functional. Has been temporarily removed.
+- Back links are not always generated when clicking on links in Go Further section.
+- Some minor formatting quirks.
+
 [0.1.93] - 2022-12-15 (@scrollpointclick)
 
 #### **Added**

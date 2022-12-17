@@ -216,11 +216,11 @@ export async function formatBulletSummary1(subject: string, summary: string, lin
  * @params (Object) learningTopic - General object that directs the behavior of the function.
  * Currently under construction.
  */
-export async function formatBullet(promptIn: string) {
-  let prompt = `Write a summary on the topic of ${promptIn}. The response should be ${bulletsSummaryParagraphs} paragraphs in length.
+export async function formatBullet(promptIn: string, prevSubject?: string = '') {
+  let prompt = `Write a summary on the topic of ${(prevSubject) ? `${promptIn} in the context of ${prevSubject}` : promptIn}. The response should be ${bulletsSummaryParagraphs} paragraphs in length.
   Summary:
   `
-  // logError(pluginJson, `\n\n\n${prompt}\n\n\n`)
+  logError(pluginJson, `\n\n\nINFO---------\n\n${prompt}\n\n\n`)
   return prompt
 }
 
@@ -244,9 +244,10 @@ export async function formatBulletLink(promptIn: string) {
  */
 export async function formatBulletKeyTerms(promptIn: string) {
   let prompt = `Write a comma-separated array of the ${bulletsAIKeyTerms} most important key topics associated with ${promptIn}. No numbers.
-  Example: Maple Syrup, hockey, Cold Weather
+  Example:Maple Syrup,hockey,Cold Weather
   List:
   `
+  logError(pluginJson, `\n\n\nINFO---------\n\n${prompt}\n\n\n`)
   return prompt
 }
 
