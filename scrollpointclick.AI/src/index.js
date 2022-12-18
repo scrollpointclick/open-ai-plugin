@@ -15,13 +15,29 @@
 // So you need to add a line below for each function that you want NP to have access to.
 // Typically, listed below are only the top-level plug-in functions listed in plugin.json
 
-export { testConnection, createAIImages, createResearchRequest, createResearchListRequest, createQuickSearch, summarizeNote, introWizard, helpWizard, updateREADME, noteToPrompt, remixQuery } from './NPAI' // add one of these for every command specifified in plugin.json (the function could be in any file as long as it's exported)
+// FETCH mocking for offline testing:
+// Comment this line out if you want to use live fetch/server endpoints
+// uncomment it for using server mocks in support/fetchOverrides.js
+import './support/fetchOverrides'
+
+export {
+  testConnection,
+  createAIImages,
+  createResearchRequest,
+  createResearchListRequest,
+  createQuickSearch,
+  summarizeNote,
+  introWizard,
+  helpWizard,
+  updateREADME,
+  noteToPrompt,
+  remixQuery,
+} from './NPAI' // add one of these for every command specifified in plugin.json (the function could be in any file as long as it's exported)
 export { bulletsAI, createResearchDigSite } from './BulletsAI-Main'
 export { adjustPreferences } from './support/helpers'
 // export { fetchOverride } from './support/fetchOverrides'
 // Do not change this line. This is here so your plugin will get recompiled every time you change your plugin.json file
 import pluginJson from '../plugin.json'
-import fetchOverrides from './support/fetchOverrides'
 
 /*
  * NOTEPLAN HOOKS
