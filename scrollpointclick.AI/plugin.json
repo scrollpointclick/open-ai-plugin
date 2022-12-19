@@ -63,6 +63,16 @@
       "arguments": []
     },
     {
+      "name": "Retrieve Research Notes",
+      "description": "Retrieves all research notes.",
+      "jsFunction": "retrieveResearchNotes",
+      "hidden": true,
+      "alias": [
+        
+      ],
+      "arguments": []
+    },  
+    {
       "name": "Remove Entry",
       "description": "Remove entry under this heading.",
       "jsFunction": "removeEntry",

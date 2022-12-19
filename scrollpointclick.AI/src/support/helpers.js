@@ -4,6 +4,7 @@ const pluginJson = `scrollpointclick.AI/helpers`
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
 import { removeContentUnderHeading } from '@helpers/NPParagraph'
+import { getProjectNotesInFolder } from '@helpers/note'
 
 export const modelOptions = {
   'text-davinci-003': 0.02,
@@ -119,4 +120,16 @@ export function scrollToEntry(heading: string, deleteItem?: bool = false, foldHe
       Editor.toggleFolding(selectedHeading)
     }
   }
+}
+
+export async function retrieveResearchNotes() {
+
+  // FIXME: This doesn't do anything. Figure out why.
+
+  const notes = getProjectNotesInFolder('Research')
+  items = []
+  for (var item in notes) {
+    items.push(item)
+  }
+  const selection = await CommandBar.showOptions(items, 'Research Notes')
 }
