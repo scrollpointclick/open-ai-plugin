@@ -33,7 +33,7 @@ export {
   noteToPrompt
 } from './NPAI' // add one of these for every command specifified in plugin.json (the function could be in any file as long as it's exported)
 export { bulletsAI, createResearchDigSite, remixQuery, explore } from './BulletsAI-Main'
-export { adjustPreferences, removeEntry } from './support/helpers'
+export { adjustPreferences, scrollToEntry } from './support/helpers'
 
 // import './support/fetchOverrides'
 

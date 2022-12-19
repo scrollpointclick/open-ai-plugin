@@ -4,7 +4,7 @@
   "noteplan.minAppVersion": "3.4.0",
   "plugin.id": "scrollpointclick.AI",
   "plugin.name": "💡 AAI",
-  "plugin.version": "0.1.97",
+  "plugin.version": "0.1.98",
   "plugin.lastUpdateInfo": "Initial release",
   "plugin.description": "GPT integration for research, summarization, etc.",
   "plugin.author": "Aaron @scrollpointclick with a little encouragement from @dwertheimer",
@@ -71,7 +71,17 @@
         
       ],
       "arguments": []
-    },   
+    },  
+    {
+      "name": "Scroll to Entry",
+      "description": "Scrolls to the selected entry.",
+      "jsFunction": "scrollToEntry",
+      "hidden": true,
+      "alias": [
+        
+      ],
+      "arguments": []
+    }, 
     {
       "name": "Create AI Images",
       "description": "Generate images with DALL-E @ OpenAI",
@@ -206,14 +216,7 @@
       "key": "researchDirectory",
       "type": "string",
       "description": "Select the desired directory to store generated research in.",
-      "default": "/"
-    },
-    {
-      "title": "AI Tools Directory",
-      "key": "aiToolsDirectory",
-      "type": "string",
-      "description": "Select the desired directory to store the AI Tools in.",
-      "default": "AI - Tools"
+      "default": "Research"
     },
     {
       "title": "BulletsAI Summary Paragraphs",

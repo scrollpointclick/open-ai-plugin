@@ -89,7 +89,34 @@ export async function adjustPreferences() {
 }
 
 export function removeEntry(heading: string) {
-  const note = Editor.note
-  logError(pluginJson, `\n\n----- ----- -----\n${note}\n\n---- ----- ---- \n\n`)
-  removeContentUnderHeading(Editor, heading, true, false)
+  logError(pluginJson, `\n\n----- ----- -----\n${heading}\n\n---- ----- ---- \n\n`)
+  const paraBeforeDelete = Editor.paragraphs.find((p) => p.content === heading)
+  if (paraBeforeDelete) {
+    const contentRange = paraBeforeDelete.contentRange
+    const characterBeforeParagraph = contentRange.start - 1 // back up one character
+    removeContentUnderHeading(Editor, heading, true, false) // delete the paragraph
+    Editor.highlightByIndex(characterBeforeParagraph,0) // scroll to where it was
+  }
+}
+
+export function scrollToEntry(heading: string, deleteItem?: bool = false, foldHeading?: bool = false) {
+  logError(pluginJson, `\n\n----- ----- -----\n${heading}\n\n${deleteItem}\n\n---- ----- ---- \n\n`)
+  const selectedHeading = Editor.paragraphs.find((p) => p.content === heading)
+  if (selectedHeading) {
+    const contentRange = selectedHeading.contentRange
+    let firstCharacter
+    if (deleteItem) {
+      
+      firstCharacter = contentRange.start - 1 // back up one character
+      logError(pluginJson, `\n\n----- ----- -----\n${firstCharacter}\n\n---- ----- ---- \n\n`)
+      // removeContentUnderHeading(Editor, heading, true, false)
+      removeEntry(heading)
+    } else {
+      firstCharacter = contentRange.start // back up one character
+      Editor.highlightByIndex(firstCharacter,0) // scroll to where it was
+    }
+    if (foldHeading == true && !Editor.isFolded(selectedHeading)) {
+      Editor.toggleFolding(selectedHeading)
+    }
+  }
 }

@@ -25,8 +25,13 @@ export async function generateSubjectSummaryPrompt(promptIn: string, prevSubject
  * @params (Object) learningTopic - General object that directs the behavior of the function.
  * Currently under construction.
  */
-export async function generateKeyTermsPrompt(promptIn: string, prevSubject?: string = '') {
+export async function generateKeyTermsPrompt(promptIn: string, prevSubject?: string = '', excludedTerms?: [string] = []) {
+    let exclusions = ''
+    for (term of excludedTerms) {
+        exclusions += `${term}, `
+    }
     let prompt = `Write a comma-separated array of the ${bulletsAIKeyTerms} most important key topics associated with ${(prevSubject) ? `${promptIn} in the context of ${prevSubject}` : `${promptIn}`}. No numbers.
+    ${(exclusions) ? `Exclude these terms: ${exclusions}`: ''}
     Example:Maple Syrup,hockey,Cold Weather
     List:
     `

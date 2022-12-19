@@ -4,6 +4,26 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.1.98] - 2022-12-19 (@scrollpointclick)
+
+#### **Added**
+- generateKeyTermsPrompt now accepts an array of strings to use as an exclusions list. Will be utilized soon.
+- scrollToHeading now implemented to automatically scroll to the newest generated summary.
+- Table of Contents now generates automatically.
+
+
+#### **Changed**
+- Removed the AI-Tools directory and changed the BulletsAI's output to the Research directory.
+
+
+#### **Fixed**
+- Key Terms generator should now return better contextual results.
+
+
+#### **Known Issues**
+- The Table of Content heading is duplicated with each regeneration. Will identify issue and resolve ASAP.
+
+
 [0.1.97] - 2022-12-18 (@scrollpointclick)
 
 #### **Added**

@@ -1,5 +1,6 @@
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
+import { removeEntry, scrollToEntry } from './helpers'
 
 const { bulletsAIKeyTerms, bulletsSummaryParagraphs } = DataStore.settings
 const pluginJson = `scrollpointclick.AI/helpers`
@@ -101,7 +102,7 @@ export async function formatBulletSummary(subject: string, summary: string, keyT
     let title = subject.trim()
     const jsonData = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
     const keyTermsOutput = await formatKeyTermsForSummary(keyTerms, subject, remixText, (subtitle) ? subtitle : '', fullHistoryText)
-    const removeParagraphText = createPrettyRunPluginLink('**✖**', 'scrollpointclick.AI', 'Remove Entry', [subject])
+    const removeParagraphText = createPrettyRunPluginLink('**✖**', 'scrollpointclick.AI', 'Scroll to Entry', [subject, true])
     const exploreText = createPrettyRunPluginLink('Explore', 'scrollpointclick.AI', 'Explore - OpenAI', [subject])
   
     const remixPrompt = createPrettyRunPluginLink(`Remix`, 'scrollpointclick.AI', 'Bullets AI', ['', subject, jsonData['initialSubject'], true])
@@ -133,4 +134,24 @@ export function formatModelInformation(info: Object) {
     console.log(modelInfo)
     return modelInfo
   }
-  
+
+  export function formatTableOfContents() {
+    const headings = Editor.paragraphs.filter((p) => p.type === 'title' && p.headingLevel === 2 )
+    let sections = ''
+    for (const subject of headings) {
+        const formattedSubject = createPrettyOpenNoteLink(subject.content, Editor.filename, true, subject.content)
+        sections += `- ${formattedSubject}\n`
+    }
+    const tableOfContents = `${sections}---`
+    scrollToEntry('Table of Contents', true, true)
+    // removeEntry('Table of Contents')  -- Also not deleting the Table of Contents heading...
+    Editor.prependParagraph(tableOfContents, 'text')
+    Editor.prependParagraph(`Table of Contents`, 'title')
+  }
+
+
+//   const modelsReturned = filteredModels.map((model) => {
+//     const cost = calculateCost(model.id, _tokens)
+//     const costStr = isNaN(cost) ? '' : ` ($${String(parseFloat(cost.toFixed(6)))} max)`
+//     return { label: `${model.id}${costStr}`, value: model.id }
+//   })
