@@ -4,6 +4,16 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.1.99] - 2022-12-19 (@scrollpointclick)
+
+
+#### **Changed**
+- createResearchDigSite now accepts incoming prompts
+
+#### **Fixed**
+- Fixed Alfred connection
+
+
 [0.1.98] - 2022-12-19 (@scrollpointclick)
 
 #### **Added**

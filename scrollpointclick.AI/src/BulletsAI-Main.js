@@ -30,8 +30,14 @@ const completionsComponent = 'completions'
  * Prompt for new research tunnel
  * 
  */
-export async function createResearchDigSite() {
-    const subject = await CommandBar.showInput('Type in your subject..', 'Start Research')
+export async function createResearchDigSite(promptIn?: string = '') {
+    let subject = ''
+    if (promptIn == '') {
+        subject = await CommandBar.showInput('Type in your subject..', 'Start Research')
+    } else {
+        subject = promptIn
+    }
+    
     DataStore.newNoteWithContent(`# ${subject} Research\n`, `${researchDirectory}`, `${subject}.txt`) 
     await Editor.openNoteByFilename(`${researchDirectory}/${subject}.txt`)
     DataStore.invokePluginCommandByName(`Bullets AI`, `scrollpointclick.AI`, [`${subject}`])
