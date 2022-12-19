@@ -4,6 +4,11 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.1.96] - 2022-12-18 (@scrollpointclick)
+
+#### **Added**
+- RemoveEntry function added to remove the section under the current heading.
+
 [0.1.95] - 2022-12-18 (@scrollpointclick)
 
 #### **Added**

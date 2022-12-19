@@ -59,8 +59,8 @@ export async function formatKeyTermsForSummary(keyTerms: [string], subject: stri
     for (const keyTerm of keyTerms) {
         // TODO: Once JSON is working, have it check for clicked links to determine how to format the following.
         if (jsonData['clickedLinks'].includes(keyTerm)) {
-            prettyKeyTerm = updateBulletLinks(keyTerm)
-            keyString = `\t${prettyKeyTerm}\n`
+            // prettyKeyTerm = updateBulletLinks(keyTerm)
+            // keyString = `\t${prettyKeyTerm}\n`
         } else {
             prettyKeyTerm = createPrettyRunPluginLink(`${keyTerm.trim()}`, 'scrollpointclick.AI', 'Bullets AI', 
             [
@@ -101,11 +101,16 @@ export async function formatBulletSummary(subject: string, summary: string, keyT
     let title = subject.trim()
     const jsonData = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
     const keyTermsOutput = await formatKeyTermsForSummary(keyTerms, subject, remixText, (subtitle) ? subtitle : '', fullHistoryText)
-    const deleteParagraphText = createPrettyRunPluginLink()
+    const removeParagraphText = createPrettyRunPluginLink('**✖**', 'scrollpointclick.AI', 'Remove Entry',
+    [
+        subject,
+        true,
+        false
+    ])
   
     const remixPrompt = createPrettyRunPluginLink(`Remix`, 'scrollpointclick.AI', 'Bullets AI', ['', subject, jsonData['initialSubject'], true])
     // let output = `## ${title}${(subject != subtitle) ? `\n#### ${subtitle}` : ''}\n#### ${remixPrompt}\n${summary}\n${keyTermsOutput}`
-    let output = `## ${title}${(subject != subtitle) ? `\n#### ${subtitle}` : ''}\n${summary}\n${keyTermsOutput}`
+    let output = `## ${title}${(subject != subtitle) ? `\n#### ${subtitle}` : ''}\n${summary}\n${removeParagraphText}\n${keyTermsOutput}`
     return output
 }
 

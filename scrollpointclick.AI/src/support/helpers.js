@@ -3,6 +3,7 @@
 const pluginJson = `scrollpointclick.AI/helpers`
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
+import { removeContentUnderHeading } from '@helpers/NPParagraph'
 
 export const modelOptions = {
   'text-davinci-003': 0.02,
@@ -85,4 +86,10 @@ export async function rerollSingleKeyTerm(promptIn: string, exclusions: string) 
 export async function adjustPreferences() {
   const settings = await DataStore.settings
   logDebug(pluginJson, `Settings:\n\n${settings}\n`)
+}
+
+export function removeEntry(heading: string, includeFromStartOfSection: boolean = false, keepHeading: boolean = true) {
+  const note = Editor.note
+  logError(pluginJson, `\n\n----- ----- -----\n${note}\n\n---- ----- ---- \n\n`)
+  removeContentUnderHeading(Editor, heading, true, false)
 }

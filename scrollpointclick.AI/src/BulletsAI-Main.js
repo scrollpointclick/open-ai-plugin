@@ -76,7 +76,7 @@ export async function bulletsAI(
                 logError(pluginJson, `\n----\n-----bulletsAI-----\nFollowed Link\nLink: ${promptIn}\nPrevious Subject: ${prevSubjectIn}\n----\n\n${typeof(useFullHistory)}`)
                 initializeData()
                 updateClickedLinksJsonData(promptIn)
-                updateBulletLinks()
+                // updateBulletLinks()
                 promptMain = await generateSubjectSummaryPrompt((useFullHistory == 'true') ? fullHistoryText : promptIn, (useFullHistory == 'true') ? '' : prevSubjectIn)
                 promptList = await generateKeyTermsPrompt(promptIn)
                 break
@@ -178,36 +178,36 @@ function updateClickedLinksJsonData(clickedLink: string) {
     return loadedJSON
 }
 
-function updateBulletLinks(keyTerm?: string = '') {
-    let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
-    let prettyKeyTerm = ''
+// function updateBulletLinks(keyTerm?: string = '') {
+//     let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
+//     let prettyKeyTerm = ''
 
-    // logError(pluginJson, `Parsing Paragraphs`)
-    for (const paragraph in Editor.paragraphs) {
-        // logError(pluginJson, `paragraph:\nTYPE: ${paragraph.type}\nCONTENT: ${paragraph.content}\n`)
-        if (Editor.paragraphs[paragraph].type == 'list') {
-            const p = Editor.paragraphs[paragraph]
-            const splitParagraph1 = p.content.split('[')
-            if (splitParagraph1 != undefined) {
+//     // logError(pluginJson, `Parsing Paragraphs`)
+//     for (const paragraph in Editor.paragraphs) {
+//         // logError(pluginJson, `paragraph:\nTYPE: ${paragraph.type}\nCONTENT: ${paragraph.content}\n`)
+//         if (Editor.paragraphs[paragraph].type == 'list') {
+//             const p = Editor.paragraphs[paragraph]
+//             const splitParagraph1 = p.content.split('[')
+//             if (splitParagraph1 != undefined) {
                 
-                /// YOU ARE HERE !!!!
-                // const bulletAsString = splitParagraph1[2].split(']')[0]
-                // logError(pluginJson, `\n\nPARAGRAPH SPLIT]\n\n${bulletAsString}\n\n`)
-                //// ISOLATED THE STRING TO MATCH FOR CLICKS
-            }       
-    }
-        if (Editor.paragraphs[paragraph].type == 'list' && Editor.paragraphs[paragraph].content.includes(loadedJSON['clickedLinks'])) {
-            prettyKeyTerm = createPrettyOpenNoteLink(Editor.paragraphs[paragraph].content, Editor.filename, true, Editor.paragraphs[paragraph].content)
-            // logError(pluginJson, `prettyKeyTerm: ${prettyKeyTerm}`)
-            Editor.paragraphs[paragraph].content = prettyKeyTerm
-            Editor.updateParagraph(Editor.paragraphs[paragraph])
-        }
-    }
-    if (keyTerm) {
-        prettyKeyTerm = createPrettyOpenNoteLink(keyTerm, Editor.filename, true, keyTerm)
-        return prettyKeyTerm
-    }       
-}
+//                 /// YOU ARE HERE !!!!
+//                 // const bulletAsString = splitParagraph1[2].split(']')[0]
+//                 // logError(pluginJson, `\n\nPARAGRAPH SPLIT]\n\n${bulletAsString}\n\n`)
+//                 //// ISOLATED THE STRING TO MATCH FOR CLICKS
+//             }       
+//     }
+//         if (Editor.paragraphs[paragraph].type == 'list' && Editor.paragraphs[paragraph].content.includes(loadedJSON['clickedLinks'])) {
+//             prettyKeyTerm = createPrettyOpenNoteLink(Editor.paragraphs[paragraph].content, Editor.filename, true, Editor.paragraphs[paragraph].content)
+//             // logError(pluginJson, `prettyKeyTerm: ${prettyKeyTerm}`)
+//             Editor.paragraphs[paragraph].content = prettyKeyTerm
+//             Editor.updateParagraph(Editor.paragraphs[paragraph])
+//         }
+//     }
+//     if (keyTerm) {
+//         prettyKeyTerm = createPrettyOpenNoteLink(keyTerm, Editor.filename, true, keyTerm)
+//         return prettyKeyTerm
+//     }       
+// }
 
 async function createTableOfContents() {
     //TODO Add functionality
