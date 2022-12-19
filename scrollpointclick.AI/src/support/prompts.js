@@ -25,8 +25,8 @@ export async function generateSubjectSummaryPrompt(promptIn: string, prevSubject
  * @params (Object) learningTopic - General object that directs the behavior of the function.
  * Currently under construction.
  */
-export async function generateKeyTermsPrompt(promptIn: string) {
-    let prompt = `Write a comma-separated array of the ${bulletsAIKeyTerms} most important key topics associated with ${promptIn}. No numbers.
+export async function generateKeyTermsPrompt(promptIn: string, prevSubject?: string = '') {
+    let prompt = `Write a comma-separated array of the ${bulletsAIKeyTerms} most important key topics associated with ${(prevSubject) ? `${promptIn} in the context of ${prevSubject}` : `${promptIn}`}. No numbers.
     Example:Maple Syrup,hockey,Cold Weather
     List:
     `
@@ -46,6 +46,13 @@ export async function generateWikiLinkPrompt(promptIn: string) {
     `
     return prompt
   }
+
+export async function generateExplorationPrompt(promptIn: string, prevSubject: string) {
+    let prompt = `
+    ${promptIn}. In the context of ${prevSubject}.
+    Output:`
+    return prompt
+}
 
   /*
 *** FORMAT RESEARCH REQUEST SECTION ***

@@ -3,7 +3,7 @@ import pluginJson from '../plugin.json'
 import { makeRequest } from './NPAI'
 import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
 import { removeContentUnderHeading } from '@helpers/NPParagraph'
-import { generateSubjectSummaryPrompt, generateKeyTermsPrompt } from './support/prompts'
+import { generateSubjectSummaryPrompt, generateKeyTermsPrompt, generateExplorationPrompt } from './support/prompts'
 import { formatSubtitle, formatKeyTermsForSummary, formatBulletSummary, formatFurtherLink, formatModelInformation } from './support/formatters'
 
 const { apiKey, defaultModel, showStats, max_tokens, researchDirectory, aiToolsDirectory, bulletsAIKeyTerms, bulletsSummaryParagraphs} = DataStore.settings
@@ -82,10 +82,11 @@ export async function bulletsAI(
                 break
                 
             case 'remix':
-                promptIn = await createRemix()
+                // promptIn = await createRemix()
+
                 initializeData()
-                promptMain = await generateSubjectSummaryPrompt(promptIn)
-                promptList = await generateKeyTermsPrompt(promptIn)
+                promptMain = await generateExplorationPrompt(promptIn, prevSubjectIn)
+                promptList = await generateKeyTermsPrompt(promptIn, prevSubjectIn)
                 break
         }
         const { newFullHistoryText, formattedSubtitle } = formatSubtitle(promptIn, (prevSubjectIn) ? prevSubjectIn : '', fullHistory, useFullHistory, fullHistoryText)
@@ -178,36 +179,36 @@ function updateClickedLinksJsonData(clickedLink: string) {
     return loadedJSON
 }
 
-// function updateBulletLinks(keyTerm?: string = '') {
-//     let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
-//     let prettyKeyTerm = ''
+function updateBulletLinks(keyTerm?: string = '') {
+    let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
+    let prettyKeyTerm = ''
 
-//     // logError(pluginJson, `Parsing Paragraphs`)
-//     for (const paragraph in Editor.paragraphs) {
-//         // logError(pluginJson, `paragraph:\nTYPE: ${paragraph.type}\nCONTENT: ${paragraph.content}\n`)
-//         if (Editor.paragraphs[paragraph].type == 'list') {
-//             const p = Editor.paragraphs[paragraph]
-//             const splitParagraph1 = p.content.split('[')
-//             if (splitParagraph1 != undefined) {
+    // logError(pluginJson, `Parsing Paragraphs`)
+    for (const paragraph in Editor.paragraphs) {
+        // logError(pluginJson, `paragraph:\nTYPE: ${paragraph.type}\nCONTENT: ${paragraph.content}\n`)
+        if (Editor.paragraphs[paragraph].type == 'list') {
+            const p = Editor.paragraphs[paragraph]
+            const splitParagraph1 = p.content.split('[')
+            if (splitParagraph1 != undefined) {
                 
-//                 /// YOU ARE HERE !!!!
-//                 // const bulletAsString = splitParagraph1[2].split(']')[0]
-//                 // logError(pluginJson, `\n\nPARAGRAPH SPLIT]\n\n${bulletAsString}\n\n`)
-//                 //// ISOLATED THE STRING TO MATCH FOR CLICKS
-//             }       
-//     }
-//         if (Editor.paragraphs[paragraph].type == 'list' && Editor.paragraphs[paragraph].content.includes(loadedJSON['clickedLinks'])) {
-//             prettyKeyTerm = createPrettyOpenNoteLink(Editor.paragraphs[paragraph].content, Editor.filename, true, Editor.paragraphs[paragraph].content)
-//             // logError(pluginJson, `prettyKeyTerm: ${prettyKeyTerm}`)
-//             Editor.paragraphs[paragraph].content = prettyKeyTerm
-//             Editor.updateParagraph(Editor.paragraphs[paragraph])
-//         }
-//     }
-//     if (keyTerm) {
-//         prettyKeyTerm = createPrettyOpenNoteLink(keyTerm, Editor.filename, true, keyTerm)
-//         return prettyKeyTerm
-//     }       
-// }
+                /// YOU ARE HERE !!!!
+                const bulletAsString = splitParagraph1[2].split(']')[0]
+                logError(pluginJson, `\n\nPARAGRAPH SPLIT]\n\n${bulletAsString}\n\n`)
+                //// ISOLATED THE STRING TO MATCH FOR CLICKS
+            }       
+    }
+        if (Editor.paragraphs[paragraph].type == 'list' && Editor.paragraphs[paragraph].content.includes(loadedJSON['clickedLinks'])) {
+            prettyKeyTerm = createPrettyOpenNoteLink(Editor.paragraphs[paragraph].content, Editor.filename, true, Editor.paragraphs[paragraph].content)
+            // logError(pluginJson, `prettyKeyTerm: ${prettyKeyTerm}`)
+            Editor.paragraphs[paragraph].content = prettyKeyTerm
+            Editor.updateParagraph(Editor.paragraphs[paragraph])
+        }
+    }
+    if (keyTerm) {
+        prettyKeyTerm = createPrettyOpenNoteLink(keyTerm, Editor.filename, true, keyTerm)
+        return prettyKeyTerm
+    }       
+}
 
 async function createTableOfContents() {
     //TODO Add functionality
@@ -261,4 +262,13 @@ async function generateRequests(reqBody: CompletionsRequest, reqListBody: Comple
 export async function remixQuery(subject: string) {
   const additionalDetails = await CommandBar.showInput('Rewrite this query with addional detail.', 'Remix')
   bulletsAI(subject, additionalDetails)
+}
+
+export async function explore(prevSubjectIn: string) {
+    // Explore - Create a new prompt that carries over an entirely new query but is still related.
+
+    // const selectedHeading = await CommandBar.showInput('Select unique heading.', 'OK') // Currently Disabled.
+    const selectedSubtitle = await CommandBar.showInput('Type in your prompt.', 'OK')
+
+    await bulletsAI(selectedSubtitle, prevSubjectIn)    
 }

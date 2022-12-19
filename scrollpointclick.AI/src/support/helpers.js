@@ -88,7 +88,7 @@ export async function adjustPreferences() {
   logDebug(pluginJson, `Settings:\n\n${settings}\n`)
 }
 
-export function removeEntry(heading: string, includeFromStartOfSection: boolean = false, keepHeading: boolean = true) {
+export function removeEntry(heading: string) {
   const note = Editor.note
   logError(pluginJson, `\n\n----- ----- -----\n${note}\n\n---- ----- ---- \n\n`)
   removeContentUnderHeading(Editor, heading, true, false)

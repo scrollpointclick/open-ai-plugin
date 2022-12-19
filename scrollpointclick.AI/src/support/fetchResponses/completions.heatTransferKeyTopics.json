@@ -5,7 +5,7 @@
     "model": "text-davinci-003",
     "choices": [
       {
-        "text": " Conduction, Convection, Radiation, Heat Flux, Heat Exchanger",
+        "text": "Conduction,Convection,Radiation,Heat Flux,Heat Exchanger",
         "index": 0,
         "logprobs": null,
         "finish_reason": "stop"

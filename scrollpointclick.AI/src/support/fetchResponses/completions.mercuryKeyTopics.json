@@ -5,7 +5,7 @@
   "model": "text-davinci-003",
   "choices": [
     {
-      "text": " Thermal Protection, Propulsion, Magnetosphere, Orbit, Atmosphere",
+      "text": "Thermal Protection,Propulsion,Magnetosphere,Orbit,Atmosphere",
       "index": 0,
       "logprobs": null,
       "finish_reason": "stop"

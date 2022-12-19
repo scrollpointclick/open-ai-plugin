@@ -4,6 +4,17 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.1.97] - 2022-12-18 (@scrollpointclick)
+
+#### **Added**
+- Explore function implemented in initial stages.
+  - Similar to the idea of the previous Remix function (which may still return)
+  - Will ask for heading (currently disabled) and for a search prompt.
+  - Runs the summary generator with your prompt and specifies that it is in the context of whatever subject you clicked Explore on.
+
+- Will update with a better solution for the heading as soon as possible.
+
+
 [0.1.96] - 2022-12-18 (@scrollpointclick)
 
 #### **Added**
