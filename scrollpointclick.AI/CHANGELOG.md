@@ -4,6 +4,22 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.1.95] - 2022-12-18 (@scrollpointclick)
+
+#### **Added**
+- prompts.js file now holds all prompt generation functions.
+- formatters.js now holds all formatting related functions.
+
+#### **Changed**
+- Removed tons of redundant code from BulletsAI-Main.js and NPAI.js
+- Cleaned up the helpers.js file by moving functions into more appropriately handled files.
+
+#### **Fixed**
+- Fixed the circular dependency between BulletsAI-Main and NPAI
+
+#### **Known Issues**
+
+
 [0.1.94] - 2022-12-16 (@scrollpointclick)
 
 #### **Added**

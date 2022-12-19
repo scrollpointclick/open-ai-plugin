@@ -4,7 +4,7 @@
   "noteplan.minAppVersion": "3.4.0",
   "plugin.id": "scrollpointclick.AI",
   "plugin.name": "💡 AAI",
-  "plugin.version": "0.1.94",
+  "plugin.version": "0.1.95",
   "plugin.lastUpdateInfo": "Initial release",
   "plugin.description": "GPT integration for research, summarization, etc.",
   "plugin.author": "Aaron @scrollpointclick with a little encouragement from @dwertheimer",
@@ -17,6 +17,7 @@
       "name": "Test Connection",
       "description": "GPT-3 @ OpenAI",
       "jsFunction": "testConnection",
+      "hidden": true,
       "alias": [
       ],
       "arguments": ["test"]
@@ -25,6 +26,7 @@
       "name": "AI Intro Wizard",
       "description": "Introduction Wizard for GPT-3 @ OpenAI",
       "jsFunction": "introWizard",
+      "hidden": true,
       "alias": [
         "introWizard"
       ],
@@ -34,6 +36,7 @@
       "name": "Help OpenAI",
       "description": "Help for GPT-3 @ OpenAI",
       "jsFunction": "helpWizard",
+      "hidden": true,
       "alias": [
         "helpWizard"
       ],
@@ -43,6 +46,7 @@
       "name": "Adjust Preferences",
       "description": "Adjust plugin preferences",
       "jsFunction": "adjustPreferences",
+      "hidden": true,
       "alias": [
         "apref"
       ],
@@ -52,6 +56,7 @@
       "name": "Create AI Images",
       "description": "Generate images with DALL-E @ OpenAI",
       "jsFunction": "createAIImages",
+      "hidden": true,
       "alias": [
       ],
       "arguments": []
@@ -60,6 +65,7 @@
       "name": "Summarize Note",
       "description": "Uses GPT-3 @ OpenAI to write a summary.",
       "jsFunction": "summarizeNote",
+      "hidden": true,
       "alias": [
       ],
       "arguments": []
@@ -68,6 +74,7 @@
       "name": "Note to OpenAI Prompt",
       "description": "Use your note as a prompt for GPT-3.",
       "jsFunction": "noteToPrompt",
+      "hidden": true,
       "alias": [
         "ntp"
       ],
@@ -77,6 +84,7 @@
       "name": "Bullets AI",
       "description": "Use your bullet points as a prompt for GPT-3.",
       "jsFunction": "bulletsAI",
+      "hidden": true,
       "alias": [
         "bai"
       ],
@@ -86,6 +94,7 @@
       "name": "Remix Query",
       "description": "Regenerate this summary request with additional details",
       "jsFunction": "remixQuery",
+      "hidden": true,
       "alias": [
         "rem"
       ],
@@ -104,6 +113,7 @@
       "name": "Create Research Request",
       "description": "Research with GPT-3 @ OpenAI",
       "jsFunction": "createResearchRequest",
+      "hidden": true,
       "alias": [
         "research"
       ],
@@ -113,6 +123,7 @@
       "name": "Create Research List Request",
       "description": "Research with GPT-3 @ OpenAI and provide a list of details",
       "jsFunction": "createResearchListRequest",
+      "hidden": true,
       "alias": [
         "listRequest"
       ],
@@ -122,6 +133,7 @@
       "name": "Create Quick Search",
       "description": "Use GPT-3 to perform a quick search.",
       "jsFunction": "createQuickSearch",
+      "hidden": true,
       "alias": [
         "fs",
         "fsearch",
@@ -133,6 +145,7 @@
       "name": "Update README - DEV ONLY",
       "description": "Updates README - DEV ONLY",
       "jsFunction": "updateREADME",
+      "hidden": true,
       "alias": [
 
       ],

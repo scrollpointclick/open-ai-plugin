@@ -7,17 +7,22 @@
  */
 
 import pluginJson from '../plugin.json'
-import { bulletsAI, formatBulletSummary } from './BulletsAI-Main'
+// import { bulletsAI } from './BulletsAI-Main'
 import { 
-  calculateCost, formatResearch, formatSummaryRequest, 
-  formatResearchListRequest, formatQuickSearchRequest, 
-  modelOptions, generateREADMECommands, formatBullet,
-  formatBulletLink, formatBulletKeyTerms,
-  formatFurtherLink
+  calculateCost,
+  modelOptions, generateREADMECommands
 } from './support/helpers' // FIXME: Is there something better than this growth?
 import { chooseOption, showMessage, showMessageYesNo, getInput } from '@helpers/userInput'
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { intro, learningOptions, openAILearningWizard, modelsInformation, externalReading } from './support/introwizard'
+import { generateSubjectSummaryPrompt, 
+  generateKeyTermsPrompt, 
+  generateResearchPrompt, 
+  generateResearchListRequest, 
+  generateQuickSearchPrompt, 
+  generateSummaryRequest,
+  generateWikiLinkPrompt } from './support/prompts'
+import { formatSubtitle, formatBulletSummary, formatFurtherLink} from './support/formatters'
 
 /*
  * TYPES
@@ -145,17 +150,6 @@ export async function chooseQuickSearchOption(query: string, summary: string): P
   logDebug(pluginJson, `chooseQuickSearchOption ${selection} selected.`)
   return selection
 }
-
-// /**
-//  * Prompt for new research tunnel
-//  * 
-//  */
-// export async function createResearchDigSite() {
-//   const subject = await CommandBar.showInput('Type in your subject..', 'Start Research')
-//   DataStore.newNoteWithContent(`# ${subject} Research\n`, `${aiToolsDirectory}`, `${subject}.txt`) 
-//   await Editor.openNoteByFilename(`${aiToolsDirectory}/${subject}.txt`)
-//   DataStore.invokePluginCommandByName(`Bullets AI`, `scrollpointclick.AI`, [`${subject}`])
-// }
 
 /**
  * Ask for a prompt and n results from user
@@ -295,7 +289,7 @@ export async function createResearchRequest(promptIn: string | null = null, nIn:
     let { prompt } = results
     const { n } = results
     logError(pluginJson, `Look at this output - ${prompt}`)
-    prompt = formatResearch(prompt, n)
+    prompt = generateResearchPrompt(prompt, n)
 
     let chosenModel = defaultModel
     if (defaultModel === 'Choose Model') {
@@ -366,7 +360,7 @@ export async function createResearchListRequest(promptIn: string | null, nIn: nu
         
       }
 
-      prompt = formatResearchListRequest(prompt)
+      prompt = generateResearchListRequest(prompt)
 
       let chosenModel = defaultModel
       if (defaultModel === 'Choose Model') {
@@ -422,7 +416,7 @@ export async function createQuickSearch(promptIn: string | null = null, userIn: 
     logDebug(pluginJson, `createQuickSearch running with prompt:${String(promptIn)} ${userIn}`)
     const start = new Date()
     const text = await CommandBar.showInput('Quick Search', 'Use GPT-3 to get a summary of your query.')
-    const prompt = formatQuickSearchRequest(text)
+    const prompt = generateQuickSearchPrompt(text)
 
     let chosenModel = defaultModel
     if (defaultModel === 'Choose Model') {
@@ -467,7 +461,7 @@ export async function summarizeNote(promptIn: string | null = null, userIn: stri
     logDebug(pluginJson, `summarizeNote running with prompt:${String(promptIn)} ${userIn}`)
     const start = new Date()
     const text = Editor.content ?? ''
-    const prompt = formatSummaryRequest(text)
+    const prompt = generateSummaryRequest(text)
 
     let chosenModel = defaultModel
     if (defaultModel === 'Choose Model') {
@@ -504,7 +498,7 @@ export async function summarizeSelection(promptIn: string | null = null, userIn:
   try {
     const start = new Date()
     const text = Editor.selectedText
-    const prompt = formatSummaryRequest(text)
+    const prompt = generateSummaryRequest(text)
 
     let chosenModel = defaultModel
     if (defaultModel == 'Choose Model') {
@@ -597,190 +591,10 @@ export async function learnMore(learningTopic: Object) {
 // Start pulling bulletsAI into functions...
 export async function setPrompts(text: string, linkText: string = '') {
   let prompt = await formatBullet(text)
-  const linkPrompt = await formatBulletLink((linkText) ? linkText : text)
+  const linkPrompt = await generateWikiLinkPrompt((linkText) ? linkText : text)
   const listPrompt = await formatBulletKeyTerms(text)
   logError(pluginJson, `setting Prompts: \n\n ${prompt}\n${linkPrompt}\n${listPrompt}`)
   return prompt, linkPrompt, listPrompt
-}
-
-export async function bulletsAI1(inputText: string = '', remixText: string = '', initialSubject: string = '', userIn: string = '') {
-  try {
-
-    const start = new Date()
-    const paragraphs = Editor.paragraphs
-    let currentHeading = ''
-    if (inputText == '') {
-      for (var index in paragraphs) {
-        const text = paragraphs[index].content
-        const lineType = paragraphs[index].type
-
-        if (lineType == 'title') {
-          // Update the current heading.
-          currentHeading = text
-          logDebug(pluginJson, `\n\nCurrent heading now:\n${currentHeading}`)
-
-        } else if (lineType == 'list') {
-          if (text != '') {
-              // logDebug(pluginJson, `is:\n ${text}`) 
-              let prompt = await formatBullet(text)
-              const linkPrompt = await formatBulletLink(text)
-              const listPrompt = await formatBulletKeyTerms(text)
-              // let prompt, linkPrompt, listPrompt = await setPrompts(text)
-
-              logDebug(pluginJson, `bulletsAI got the formatted prompt:\n\n${prompt}`)
-            
-              let chosenModel = defaultModel
-
-              if (defaultModel == 'Choose Model') {
-                logDebug(pluginJson, `summarizeNote: Choosing Model...`)
-                chosenModel = 'text-davinci-003'
-                logDebug(pluginJson, `summarizeNote: ${String(chosenModel)} selected`)
-              }
-
-              const reqBody: CompletionsRequest = { prompt, model: chosenModel, max_tokens: max_tokens }
-              prompt = linkPrompt
-              const reqLinkBody: CompletionsRequest = { prompt, model: chosenModel, max_tokens: max_tokens }
-              prompt = listPrompt
-              const reqListBody: CompletionsRequest = { prompt, model: chosenModel, max_tokens: max_tokens }
-              
-              const request = await makeRequest(completionsComponent, 'POST', reqBody)
-              const linkRequest = await makeRequest(completionsComponent, 'POST', reqLinkBody)
-              const listRequest = await makeRequest(completionsComponent, 'POST', reqListBody)
-              const time = timer(start)
-              clo(request, `testConnection completionResult result`)
-              let summary = ''
-              if (request) {
-                const response = request.choices[0].text
-                const link = linkRequest.choices[0].text
-                const keyTermsList = listRequest.choices[0].text
-                const total_tokens = request.usage.total_tokens
-                const { showStats } = DataStore.settings
-                summary = await formatBulletSummary(text, response, link, keyTermsList)
-                
-                if (currentHeading == 'Go Further?') {
-                  paragraphs[index].content = await formatFurtherLink(text)
-                } else {
-                  paragraphs[index].content = text
-                }
-                
-                paragraphs[index].type = 'title' 
-
-                Editor.appendParagraph(`${summary}`)
-              }
-          } else {
-            // If list item is empty
-            Editor.removeParagraph(paragraphs[index])
-          }
-          Editor.updateParagraphs(paragraphs)
-        }
-      }
-    } else {
-      let text = inputText
-      let prompt = ''
-      let linkPrompt = ''
-      let listPrompt = ''
-      if (initialSubject != "" && initialSubject != null) {
-        remixText = `${text} in the context of ${initialSubject}`
-      }
-      if (remixText != '' && remixText != null) {
-        // logError(pluginJson, `\n\In a REMIX\n`)
-        logDebug(pluginJson, `bulletsAI got the remixed text:\n\n${remixText}`)
-        // let prompt, linkPrompt, listPrompt = await setPrompts(remixText, text)
-        prompt = await formatBullet(remixText)
-        linkPrompt = await formatBulletLink(text)
-        listPrompt = await formatBulletKeyTerms(remixText)
-      } else {
-        logDebug(pluginJson, `bulletsAI got the text:\n\n${text}`)
-        // let prompt, linkPrompt, listPrompt = await setPrompts(text)
-        prompt = await formatBullet(text)
-        linkPrompt = await formatBulletLink(text)
-        listPrompt = await formatBulletKeyTerms(text)
-      }
-
-      logDebug(pluginJson, `bulletsAI got the formatted prompt:\n\n${prompt}`)
-    
-      let chosenModel = defaultModel
-
-      if (defaultModel == 'Choose Model') {
-        logDebug(pluginJson, `summarizeNote: Choosing Model...`)
-        chosenModel = 'text-davinci-003'
-        logDebug(pluginJson, `summarizeNote: ${String(chosenModel)} selected`)
-      }
-
-      const reqBody: CompletionsRequest = { prompt, model: chosenModel, max_tokens: max_tokens }
-      prompt = linkPrompt
-      const reqLinkBody: CompletionsRequest = { prompt, model: chosenModel, max_tokens: max_tokens }
-      prompt = listPrompt
-      const reqListBody: CompletionsRequest = { prompt, model: chosenModel, max_tokens: max_tokens }
-      
-      const request = await makeRequest(completionsComponent, 'POST', reqBody)
-      const linkRequest = await makeRequest(completionsComponent, 'POST', reqLinkBody)
-      const listRequest = await makeRequest(completionsComponent, 'POST', reqListBody)
-      const time = timer(start)
-      clo(request, `testConnection completionResult result`)
-      let summary = ''
-      if (request) {
-        const response = request.choices[0].text
-        const link = linkRequest.choices[0].text
-        const keyTermsList = listRequest.choices[0].text
-        const total_tokens = request.usage.total_tokens
-        const { showStats } = DataStore.settings
-        summary = await formatBulletSummary(text, response, link, keyTermsList, remixText)
-
-        const matchedValue = `[${text}](noteplan://x-callback-url/runPlugin?pluginID=scrollpointclick.AI&command=Bullets%20AI&arg0=${encodeURI(text)}&arg1=)`
-        let alteredLinks = []
-        for (var index in paragraphs) {
-          // logError(pluginJson, `\n\n\n\nREMIX VALUE\n\n${remixText}\n\n\n\n`)
-         
-          // logWarn(pluginJson, `\n\nDETAILS-----------\nAt Paragraph ${index}:\n${paragraphs[index].content}\n\nShould Match: \n${matchedValue}`)
-          if (paragraphs[index].content.includes(`[${text}](`) || (paragraphs[index].content.includes(`${text}`) && paragraphs[index].type == 'title')) {
-            // logError(pluginJson, `\n\n------MATCH------\n\n${index}\n\n`)
-            paragraphs[index].content = await formatFurtherLink(text)
-            paragraphs[index].type = 'title'
-            Editor.updateParagraph(paragraphs[index])
-            if (!alteredLinks.includes(matchedValue)) {
-              logError(pluginJson, `\n\n------MATCH------\n\n${index}\n\n`)
-              Editor.appendParagraph(`${summary}`) 
-            }
-            alteredLinks.push(matchedValue)
-          }
-        }
-        if (remixText) {
-          if (!alteredLinks.includes(matchedValue)) {
-            Editor.appendParagraph(`${summary}`) 
-          }
-        }
-      }
-    }
-    if (showStats) {
-      const stats = formatTextStats(time, chosenModel, total_tokens)
-      Editor.insertTextAtCursor(stats)
-    }
-  } catch (error) {
-    logError(pluginJson, `Error Message: ${error}`)
-  }
-}
-
-/**
- * Remix the summary request with additional details
- * https://beta.openai.com/docs/api-reference/completions/create
- * @param {string} subject - The initial subject value.
- */
-export async function remixQuery(subject: string) {
-  const additionalDetails = await CommandBar.showInput('Rewrite this query with addional detail.', 'Remix')
-  bulletsAI(subject, additionalDetails)
-}
-
-
-/**
- * Formats the incoming model object to display its information in a more readable format.
- * https://beta.openai.com/docs/api-reference/completions/create
- * @param {Object} info - The info needed to provide the function with something to parse and format.
- */
-export function formatModelInformation(info: Object) {
-  const modelInfo = `Good At: ${info.goodAt}\n\nCost: ${info.cost}.`
-  console.log(modelInfo)
-  return modelInfo
 }
 
 /*

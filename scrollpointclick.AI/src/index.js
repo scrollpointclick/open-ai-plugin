@@ -18,7 +18,7 @@
 // FETCH mocking for offline testing:
 // Comment this line out if you want to use live fetch/server endpoints
 // uncomment it for using server mocks in support/fetchOverrides.js
-import './support/fetchOverrides'
+// import './support/fetchOverrides'
 
 export {
   testConnection,
@@ -30,11 +30,11 @@ export {
   introWizard,
   helpWizard,
   updateREADME,
-  noteToPrompt,
-  remixQuery,
+  noteToPrompt
 } from './NPAI' // add one of these for every command specifified in plugin.json (the function could be in any file as long as it's exported)
-export { bulletsAI, createResearchDigSite } from './BulletsAI-Main'
+export { bulletsAI, createResearchDigSite, remixQuery } from './BulletsAI-Main'
 export { adjustPreferences } from './support/helpers'
+// export {  } from './support/formatters'
 // Do not change this line. This is here so your plugin will get recompiled every time you change your plugin.json file
 import pluginJson from '../plugin.json'
 
