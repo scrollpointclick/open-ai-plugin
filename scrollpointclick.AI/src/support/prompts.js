@@ -16,7 +16,7 @@ export async function generateSubjectSummaryPrompt(promptIn: string, prevSubject
     let prompt = `Write a summary on the topic of ${(prevSubject) ? `${promptIn} in the context of ${prevSubject}` : promptIn}. The response should be ${bulletsSummaryParagraphs} paragraphs in length.  
     Summary:
     `
-    logError(pluginJson, `\n\n\nINFO---------\n\n${prompt}\n\n\n`)
+    logDebug(pluginJson, `\n\n\nINFO---------\n\n${prompt}\n\n\n`)
     return prompt
   }
 
@@ -35,7 +35,7 @@ export async function generateKeyTermsPrompt(promptIn: string, prevSubject?: str
     Example:Maple Syrup,hockey,Cold Weather
     List:
     `
-    logError(pluginJson, `\n\n\nINFO---------\n\n${prompt}\n\n\n`)
+    logDebug(pluginJson, `\n\n\nINFO---------\n\n${prompt}\n\n\n`)
     return prompt
   }
 

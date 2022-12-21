@@ -14,7 +14,7 @@ const mockResponses: Array<FetchMockResponse> = [
   { match: { url: 'completions', optionsBody: 'key topics associated with Mercury' }, response: JSON.stringify(mercuryKeyTopics) },
   { match: { url: 'completions', optionsBody: 'topic of Thermal Protection' }, response: JSON.stringify(thermalProtection) },
   { match: { url: 'completions', optionsBody: 'key topics associated with Thermal Protection' }, response: JSON.stringify(thermalProtectionKeyTopics) },
-  { match: { url: 'completions', optionsBody: 'topic of Heat Transfer' }, response: JSON.stringify(heatTransfer) },
+  // { match: { url: 'completions', optionsBody: 'topic of Heat Transfer' }, response: JSON.stringify(heatTransfer) },
   { match: { url: 'completions', optionsBody: 'Heat Transfer in the context of' }, response: JSON.stringify(heatTransfer) },
   { match: { url: 'completions', optionsBody: 'key topics associated with Heat Transfer' }, response: JSON.stringify(heatTransferKeyTopics) },
 ]

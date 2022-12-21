@@ -4,6 +4,20 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.2.0] - 2022-12-20 (@scrollpointclick)
+
+#### **Added**
+
+
+#### **Changed**
+- Changed the non-error logError calls to logDebug (or removed them entirely.)
+
+#### **Fixed**
+
+
+#### **Known Issues**
+- Still not properly removing items from unclicked JSON.
+
 [0.1.99] - 2022-12-19 (@scrollpointclick)
 
 

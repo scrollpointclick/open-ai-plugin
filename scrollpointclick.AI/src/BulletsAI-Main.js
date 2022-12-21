@@ -80,10 +80,10 @@ export async function bulletsAI(
                 break
                 
             case 'followedLink':
-                logError(pluginJson, `\n----\n-----bulletsAI-----\nFollowed Link\nLink: ${promptIn}\nPrevious Subject: ${prevSubjectIn}\n----\n\n${typeof(useFullHistory)}`)
+                logDebug(pluginJson, `\n----\n-----bulletsAI-----\nFollowed Link\nLink: ${promptIn}\nPrevious Subject: ${prevSubjectIn}\n----\n\n${typeof(useFullHistory)}`)
                 initializeData()
-                // updateClickedLinksJsonData(promptIn)
-                // updateBulletLinks()
+                updateClickedLinksJsonData(promptIn)
+                updateBulletLinks()
                 promptMain = await generateSubjectSummaryPrompt((useFullHistory == 'true') ? fullHistoryText : promptIn, (useFullHistory == 'true') ? '' : prevSubjectIn)
                 promptList = await generateKeyTermsPrompt(promptIn, prevSubjectIn)
                 break
@@ -157,68 +157,105 @@ function initializeData(query?: string) {
     return loadedJSON
 }
 
-// function updateClickedLinksJsonData(clickedLink: string) {
-//     let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
-//     let unclickedLinks = []
-//     let clickedLinks = [clickedLink]
-//     for (const clicked of loadedJSON['clickedLinks']) {
-//         // logError(pluginJson, `CLICKED == ${clicked}`)
-//         clickedLinks.push(clicked)
-//     }
-//     for (const unclickedLink of loadedJSON['unclickedLinks']) {
-//         const cleanLink = unclickedLink.trim()
-//         if (clickedLinks.includes(unclickedLink.trim())) {
-//             // FIXME Should do something
-//         }
-//         if (unclickedLink.trim() == clickedLink.trim()) {
-//             unclickedLinks.pop(clickedLink)
-//         } else {
-//             unclickedLinks.push(unclickedLink)
-//         }
-//     }
-//     for (const unclickedLink of unclickedLinks) {
-//         if (clickedLinks.includes(unclickedLink.trim())) {
-//             unclickedLinks.pop(unclickedLink)
-//         }
-//     }
+function updateUnclickedList(unclickedLinks: [string]) {
+    const loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
+    let unclickedLinksList = []
+    let clickedLinksList = []
+
+    for (const unclicked of loadedJSON['unclickedLinks']) {
+        logDebug(pluginJson, `\n\n------\n\nValue of unclicked in JSON:\n${unclicked}\n\n`)
+        unclickedLinksList.push(unclicked)
+    }
+
+    for (const clicked of loadedJSON['clickedLinks']) {
+        // logDebug(pluginJson, `\n\n------\n\nValue of unclicked in JSON:\n${unclicked}\n\n`)
+        clickedLinksList.push(clicked)
+    }
+
+    for (let unclicked of unclickedLinks) {
+        // logDebug(pluginJson, `\n\n------\n\nValue of Unclicked:\n${unclicked}\n\n`)
+
+        if (unclicked.slice(0,1) == '\n') {
+            unclicked = unclicked.slice(1)
+        }
+        if ( unclicked[0] == ' ') {
+            unclicked = unclicked.slice(1)
+        }
+        // logDebug(pluginJson, `\n\n------\n\nValue of Modified:\n${unclicked}\n\n`)
+        if (!unclickedLinksList.includes(unclicked)) {
+            if (!clickedLinksList.includes(unclicked)) {
+                unclickedLinksList.push(unclicked)
+                logDebug(pluginJson, `\n\n------\n\nAdded:\n${unclicked}\n\n`)
+            } else {
+                logDebug(pluginJson, `\n\n------\n\nAlready in Clicked Links:\n${unclicked}\n\n`)
+            }
+        } else {
+            logDebug(pluginJson, `\n\n------\n\nAlready in Unclicked Links:\n${unclicked}\n\n`)
+        }
     
-//     loadedJSON['unclickedLinks'] = unclickedLinks.filter((v, i, a) => a.indexOf(v) === i)
-//     loadedJSON['clickedLinks'] = clickedLinks.filter((v, i, a) => a.indexOf(v) === i)
-//     DataStore.saveJSON(loadedJSON, `Query Data/${Editor.title}/data.json`)
-//     return loadedJSON
-// }
+    loadedJSON['unclickedLinks'] = unclickedLinksList
 
-// function updateBulletLinks(keyTerm?: string = '') {
-//     let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
-//     let prettyKeyTerm = ''
+    DataStore.saveJSON(loadedJSON, `Query Data/${Editor.title}/data.json`)
+    }
+}
 
-//     // logError(pluginJson, `Parsing Paragraphs`)
-//     for (const paragraph in Editor.paragraphs) {
-//         // logError(pluginJson, `paragraph:\nTYPE: ${paragraph.type}\nCONTENT: ${paragraph.content}\n`)
-//         if (Editor.paragraphs[paragraph].type == 'list') {
-//             const p = Editor.paragraphs[paragraph]
-//             const splitParagraph1 = p.content.split('[')
-//             if (splitParagraph1 != undefined) {
-                
-//                 /// YOU ARE HERE !!!!
-//                 // const bulletAsString = splitParagraph1[2].split(']')[0]
-//                 // logError(pluginJson, `\n\nPARAGRAPH SPLIT]\n\n${bulletAsString}\n\n`)
-//                 //// ISOLATED THE STRING TO MATCH FOR CLICKS
-//             }       
-//     }
-//         if (Editor.paragraphs[paragraph].type == 'list' && Editor.paragraphs[paragraph].content.includes(loadedJSON['clickedLinks'])) {
-//             prettyKeyTerm = createPrettyOpenNoteLink(Editor.paragraphs[paragraph].content, Editor.filename, true, Editor.paragraphs[paragraph].content)
-//             // logError(pluginJson, `prettyKeyTerm: ${prettyKeyTerm}`)
-//             Editor.paragraphs[paragraph].content = prettyKeyTerm
-//             Editor.updateParagraph(Editor.paragraphs[paragraph])
-//             Editor.highlight(Editor.paragraphs[paragraph])
-//         }
-//     }
-//     if (keyTerm) {
-//         prettyKeyTerm = createPrettyOpenNoteLink(keyTerm, Editor.filename, true, keyTerm)
-//         return prettyKeyTerm
-//     }       
-// }
+function updateClickedLinksJsonData(clickedLink: string) {
+    const loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
+    let unclickedLinks = []
+    let clickedLinks = [clickedLink]
+
+    for (const clicked of loadedJSON['clickedLinks']) {
+        if (!clickedLinks.includes(clicked)) {
+            clickedLinks.push(clicked)
+        }
+    }
+
+    for (const unclicked of loadedJSON['unclickedLinks']) {
+        if (unclicked != clickedLink && !clickedLinks.includes(unclicked)) {
+            logDebug(pluginJson, `\n\n------\n\nPUSHED:\n${unclicked}\n\n`)
+            unclickedLinks.push(unclicked)
+        } else {
+            logDebug(pluginJson, `\n\n------\n\nPOPPED:\n${unclicked}\n\n`)
+            unclickedLinks.pop(unclicked)
+        }
+    }
+    
+    if (loadedJSON['unclickedLinks'].includes(clickedLink)) {
+        logDebug(pluginJson, `\n\n------\n\nPOPPED:\n${unclicked}\n\n`)
+        unclickedLinks.pop(clickedLink)
+    }
+
+    loadedJSON['unclickedLinks'] = unclickedLinks
+    loadedJSON['clickedLinks'] = clickedLinks
+    DataStore.saveJSON(loadedJSON, `Query Data/${Editor.title}/data.json`)
+    // return loadedJSON
+}
+
+function updateBulletLinks(keyTerm?: string = '') {
+    let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
+    let prettyKeyTerm = ''
+
+    for (const paragraph in Editor.paragraphs) {
+        if (Editor.paragraphs[paragraph].type == 'list' && Editor.paragraphs[paragraph].content[1] == '╠') {
+            const p = Editor.paragraphs[paragraph]
+            const splitParagraph1 = p.content.split('[')
+            if (splitParagraph1 != undefined) {
+                const bulletAsString = splitParagraph1[2].split(']')[0]
+                logError(pluginJson, `\n\nPARAGRAPH SPLIT]\n\n${bulletAsString}\n\n`)
+            }       
+    }
+        if (Editor.paragraphs[paragraph].type == 'list' && loadedJSON['clickedLinks'].includes(Editor.paragraphs[paragraph].content)) {
+            prettyKeyTerm = createPrettyOpenNoteLink(Editor.paragraphs[paragraph].content, Editor.filename, true, Editor.paragraphs[paragraph].content)
+            Editor.paragraphs[paragraph].content = prettyKeyTerm
+            Editor.updateParagraph(Editor.paragraphs[paragraph])
+            Editor.highlight(Editor.paragraphs[paragraph])
+        }
+    }
+    if (keyTerm) {
+        prettyKeyTerm = createPrettyOpenNoteLink(keyTerm, Editor.filename, true, keyTerm)
+        return prettyKeyTerm
+    }       
+}
 
 async function createTableOfContents() {
     //TODO Add functionality
@@ -230,23 +267,9 @@ async function parseResponse(request: Object | null, listRequest: Object | null,
     if (request) {
         const responseText = request.choices[0].text.trim()
         const keyTermsList = listRequest.choices[0].text.split(',')
-        let keyTerms = []
-        let jsonData = {...DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)}
-        for (const keyTerm of jsonData['unclickedLinks']) {
-            keyTerms.push(keyTerm)
-        }
-        for (const keyTerm of keyTermsList) {
-            if (!keyTerms.includes(keyTerm)) {
-            keyTerms.push(keyTerm)
-            }
-        }
-        jsonData['unclickedLinks'] = keyTerms
-        DataStore.saveJSON(jsonData, `Query Data/${Editor.title}/data.json`)
-        // clo(subtitle, 'subtitle')
-
+        updateUnclickedList(keyTermsList)
         const totalTokens = (request.usage.total_tokens + listRequest.usage.total_tokens)
         summary = await formatBulletSummary(subject, responseText, keyTermsList, remixText, subtitle, fullHistoryText)
-        // clo(summary, 'summary after now writing')
         return summary
     }
 }

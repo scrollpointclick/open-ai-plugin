@@ -5,7 +5,7 @@
     "model": "text-davinci-003",
     "choices": [
       {
-        "text": "Thermal Protection,Heat Transfer,Heat Shield,Thermal Insulation,Thermal Diffusivity,Temperature Regulation",
+        "text": "\nThermal Protection,Heat Transfer, Heat Shield,Thermal Insulation,Thermal Diffusivity,Temperature Regulation",
         "index": 0,
         "logprobs": null,
         "finish_reason": "stop"

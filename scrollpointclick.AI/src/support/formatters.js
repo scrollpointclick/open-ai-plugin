@@ -8,22 +8,22 @@ const pluginJson = `scrollpointclick.AI/helpers`
 
 
 export function formatSubtitle(subject: string, prevSubject?: string = '', fullHistory: string, useFullHistory: bool, fullHistoryText: string) {
-    logError(pluginJson, `\n\nHERE---------${subject}\n${prevSubject}`)
+    logDebug(pluginJson, `\n\nHERE---------${subject}\n${prevSubject}`)
     let fullHistoryTextOut = ''
     let backLink = ''
     let subtitle = ''
     let newFullHistoryLink = ''
     if (prevSubject) {
         
-        logError(pluginJson, useFullHistory)
-        logError(pluginJson, typeof(useFullHistory))
+        logDebug(pluginJson, useFullHistory)
+        logDebug(pluginJson, typeof(useFullHistory))
         if (useFullHistory == true || useFullHistory == 'true') {
-            logError(pluginJson, useFullHistory)
+            logDebug(pluginJson, useFullHistory)
             if (fullHistory.includes(prevSubject)) {
-                logError(pluginJson, useFullHistory)
+                logDebug(pluginJson, useFullHistory)
                 const prettyPrev = createPrettyOpenNoteLink(prevSubject, Editor.filename, true, prevSubject)
                 newFullHistoryLink = fullHistory.replace(prevSubject, prettyPrev)
-                logError(pluginJson, newFullHistoryLink)
+                logDebug(pluginJson, newFullHistoryLink)
             }
             backLink = createPrettyOpenNoteLink(prevSubject, Editor.filename, true, prevSubject)
             fullHistoryTextOut = `${subject} in the context of ${fullHistoryText}`
@@ -119,7 +119,6 @@ export async function formatBulletSummary(subject: string, summary: string, keyT
 export async function formatFurtherLink(text: string) {
 const fileName = Editor.filename
 
-// logError(pluginJson, `${Editor.filename}`)
 const furtherLink = createPrettyOpenNoteLink(text, fileName, true, text)
 return furtherLink
 }
