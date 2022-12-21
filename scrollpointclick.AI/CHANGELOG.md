@@ -13,6 +13,11 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 #### **Fixed**
 - Fixed Alfred connection
 
+[0.1.99] - 2022-12-20 (@dwertheimer)
+- Moved DataStore.settings calls inside functions (no more calling globally)
+- Finished JSON data storage link-clicking functions
+- Wrote basic tests for the pure JS part of that function
+- Added Flow types file in support folder
 
 [0.1.98] - 2022-12-19 (@scrollpointclick)
 

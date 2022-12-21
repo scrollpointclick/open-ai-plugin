@@ -13,8 +13,7 @@ export const modelOptions = {
   'text-ada-001': 0.0004,
 }
 
-const commandsPath = "/support/.readme_text/commands.md"
-const { bulletsAIKeyTerms, bulletsSummaryParagraphs } = DataStore.settings
+const commandsPath = '/support/.readme_text/commands.md'
 
 /**
  * Calculates the cost of the request.
@@ -41,30 +40,28 @@ export function calculateCost(model: string, total_tokens: number): number {
 /**
  * Generates the Commands section of the README.md
  */
- export function generateREADMECommands() {
+export function generateREADMECommands() {
   logDebug(pluginJson, `generateREADMECommands(): starting generation.`)
   let output = ''
-  const commands = pluginJson["plugin.commands"]
+  const commands = pluginJson['plugin.commands']
   logDebug(pluginJson, `generateREADMECommands(): found commands.`)
-  clo(commands, "COMMANDS")
+  clo(commands, 'COMMANDS')
   if (Array.isArray(commands)) {
     logDebug(pluginJson, `generateREADMECommands(): found array.`)
     output.push(`### Commands`)
     commands.forEach((command) => {
       const linkText = `try it`
-      const rpu = createPrettyRunPluginLink(linkText, pluginJson["plugin.id"], command.name)
-      const aliases = commmand.aliases && command.aliases.length ?
-      `\r\t*Aliases:${command.aliases.toString()}*` : ''
+      const rpu = createPrettyRunPluginLink(linkText, pluginJson['plugin.id'], command.name)
+      const aliases = commmand.aliases && command.aliases.length ? `\r\t*Aliases:${command.aliases.toString()}*` : ''
       output.push(`- /${command.name} ${rpu}${aliases}\r\t*${command.description}*`)
     })
     logDebug(pluginJson, `generateREADMECommands(): finished generation.`)
   }
-  if ( output != '' ) {
+  if (output != '') {
     logDebug(pluginJson, `generateREADMECommands(): writing to file.`)
     fs.writeFile(commandsPath, output)
   }
 }
-
 
 /**
  * Sets the prompt format for the summary part of the bullet prompt
@@ -96,25 +93,24 @@ export function removeEntry(heading: string) {
     const contentRange = paraBeforeDelete.contentRange
     const characterBeforeParagraph = contentRange.start - 1 // back up one character
     removeContentUnderHeading(Editor, heading, true, false) // delete the paragraph
-    Editor.highlightByIndex(characterBeforeParagraph,0) // scroll to where it was
+    Editor.highlightByIndex(characterBeforeParagraph, 0) // scroll to where it was
   }
 }
 
-export function scrollToEntry(heading: string, deleteItem?: bool = false, foldHeading?: bool = false) {
+export function scrollToEntry(heading: string, deleteItem?: boolean = false, foldHeading?: boolean = false) {
   logError(pluginJson, `\n\n----- ----- -----\n${heading}\n\n${deleteItem}\n\n---- ----- ---- \n\n`)
   const selectedHeading = Editor.paragraphs.find((p) => p.content === heading)
   if (selectedHeading) {
     const contentRange = selectedHeading.contentRange
     let firstCharacter
     if (deleteItem) {
-      
       firstCharacter = contentRange.start - 1 // back up one character
       logError(pluginJson, `\n\n----- ----- -----\n${firstCharacter}\n\n---- ----- ---- \n\n`)
       // removeContentUnderHeading(Editor, heading, true, false)
       removeEntry(heading)
     } else {
       firstCharacter = contentRange.start // back up one character
-      Editor.highlightByIndex(firstCharacter,0) // scroll to where it was
+      Editor.highlightByIndex(firstCharacter, 0) // scroll to where it was
     }
     if (foldHeading == true && !Editor.isFolded(selectedHeading)) {
       Editor.toggleFolding(selectedHeading)
@@ -123,7 +119,6 @@ export function scrollToEntry(heading: string, deleteItem?: bool = false, foldHe
 }
 
 export async function retrieveResearchNotes() {
-
   // FIXME: This doesn't do anything. Figure out why.
 
   const notes = getProjectNotesInFolder('Research')

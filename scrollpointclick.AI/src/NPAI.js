@@ -8,21 +8,20 @@
 
 import pluginJson from '../plugin.json'
 // import { bulletsAI } from './BulletsAI-Main'
-import { 
-  calculateCost,
-  modelOptions, generateREADMECommands
-} from './support/helpers' // FIXME: Is there something better than this growth?
+import { calculateCost, modelOptions, generateREADMECommands } from './support/helpers' // FIXME: Is there something better than this growth?
 import { chooseOption, showMessage, showMessageYesNo, getInput } from '@helpers/userInput'
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { intro, learningOptions, openAILearningWizard, modelsInformation, externalReading } from './support/introwizard'
-import { generateSubjectSummaryPrompt, 
-  generateKeyTermsPrompt, 
-  generateResearchPrompt, 
-  generateResearchListRequest, 
-  generateQuickSearchPrompt, 
+import {
+  generateSubjectSummaryPrompt,
+  generateKeyTermsPrompt,
+  generateResearchPrompt,
+  generateResearchListRequest,
+  generateQuickSearchPrompt,
   generateSummaryRequest,
-  generateWikiLinkPrompt } from './support/prompts'
-import { formatSubtitle, formatBulletSummary, formatFurtherLink} from './support/formatters'
+  generateWikiLinkPrompt,
+} from './support/prompts'
+import { formatSubtitle, formatBulletSummary, formatFurtherLink } from './support/formatters'
 
 /*
  * TYPES
@@ -40,7 +39,6 @@ const baseURL = 'https://api.openai.com/v1'
 const modelsComponent = 'models'
 const imagesGenerationComponent = 'images/generations'
 const completionsComponent = 'completions'
-const { apiKey, defaultModel, showStats, max_tokens, researchDirectory, aiToolsDirectory} = DataStore.settings
 
 const availableModels = ['text-davinci-003', 'text-curie-001', 'text-babbage-001', 'text-ada-001']
 
@@ -54,7 +52,9 @@ const availableModels = ['text-davinci-003', 'text-curie-001', 'text-babbage-001
  * @param {string} body - JSON string to send with POST or PUT
  * @returns
  */
+
 export const getRequestObj = (method: string = 'GET', body: any = null): any => {
+  const { apiKey } = DataStore.settings
   if (apiKey.length) {
     const obj = {
       method,
@@ -110,13 +110,11 @@ export async function makeRequest(component: string, requestType: string = 'GET'
   return null
 }
 
-
-
 /**
  * Get the model list from OpenAI and ask the user to choose one
  * @returns {string|null} the model ID chosen
  */
-export async function chooseModel(_tokens?: number = max_tokens): Promise<string | null> {
+export async function chooseModel(_tokens?: number = 1000): Promise<string | null> {
   logDebug(pluginJson, `chooseModel tokens:${_tokens}`)
   const models = (await makeRequest(modelsComponent))?.data
   const filteredModels = models.filter((m) => modelOptions.hasOwnProperty(m.id))
@@ -244,13 +242,14 @@ export async function createAIImages(promptIn: string | null = '', nIn: number =
  * @param {string} prompt - A text description of the prompt for the AI to interpret.
  * @param {string} user - A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
  */
- export async function noteToPrompt(promptIn: string | null = '', userIn: string | null = null) {
+export async function noteToPrompt(promptIn: string | null = '', userIn: string | null = null) {
   try {
     logDebug(pluginJson, `noteToPrompt running with prompt:${String(promptIn)} ${String(userIn)}`)
+    const { defaultModel, max_tokens } = DataStore.settings
 
     const start = new Date()
     const prompt = Editor.content
-    
+
     let chosenModel = defaultModel
     if (defaultModel === 'Choose Model') {
       logDebug(pluginJson, `noteToPrompt: Choosing Model...`)
@@ -259,13 +258,13 @@ export async function createAIImages(promptIn: string | null = '', nIn: number =
     }
     const reqBody: CompletionsRequest = { prompt, model: chosenModel, max_tokens: max_tokens }
     if (userIn) reqBody.user = userIn
-    const request = (await makeRequest(completionsComponent, 'POST', reqBody))
+    const request = await makeRequest(completionsComponent, 'POST', reqBody)
     const elapsed = timer(start)
     clo(request, `testConnection noteToPrompt result`)
     if (request) {
       const response = request.choices[0].text
       // Editor.appendParagraph("```", "text")
-      Editor.appendParagraph(response.trim(), "text")
+      Editor.appendParagraph(response.trim(), 'text')
       // Editor.appendParagraph("```", "text")
     }
   } catch (error) {
@@ -283,6 +282,8 @@ export async function createAIImages(promptIn: string | null = '', nIn: number =
 export async function createResearchRequest(promptIn: string | null = null, nIn: number = 3, userIn: string = '') {
   try {
     logDebug(pluginJson, `createResearchRequest running with prompt:${String(promptIn)} ${String(nIn)} ${userIn}`)
+    const { defaultModel, max_tokens, researchDirectory } = DataStore.settings
+
     const start = new Date()
 
     const results = await getPromptAndNumberOfResults(promptIn, nIn) // adding a little extra code to keep Flow happy with type checking
@@ -329,7 +330,7 @@ export async function createResearchRequest(promptIn: string | null = null, nIn:
 }
 
 export async function exploreList(selection: string, subject: string, options: [string]) {
-  const currentPage = {'selection': selection, 'options': options}
+  const currentPage = { selection: selection, options: options }
   logError(pluginJson, `${currentPage}`)
   history.push(currentPage)
 
@@ -344,12 +345,13 @@ export async function exploreList(selection: string, subject: string, options: [
  * Plugin entrypoint for command: "/lista
  * @param {*} incoming
  */
-export async function createResearchListRequest(promptIn: string | null, nIn: number = 10, userIn: string = '', isLast: bool = false) {
+export async function createResearchListRequest(promptIn: string | null, nIn: number = 10, userIn: string = '', isLast: boolean = false) {
   try {
+    const { defaultModel, max_tokens } = DataStore.settings
     const initialQuery = await getPromptAndNumberOfResults(promptIn, nIn)
-    let history = {'pages': []}
+    let history = { pages: [] }
     while (!isLast) {
-      let currentPage: ResearchListResult = {initialQuery}
+      let currentPage: ResearchListResult = { initialQuery }
 
       let { prompt } = initialQuery
       let currentQuery = prompt
@@ -357,7 +359,6 @@ export async function createResearchListRequest(promptIn: string | null, nIn: nu
         let currentQuery = promptIn
         prompt = `${currentQuery} as it pertains to ${initialQuery}`
       } else {
-        
       }
 
       prompt = generateResearchListRequest(prompt)
@@ -378,15 +379,15 @@ export async function createResearchListRequest(promptIn: string | null, nIn: nu
         const response = request.choices[0].text
         const jsonData = JSON.parse(response)
         clo(jsonData, `jsonParse() completionResult result`)
-  
+
         const summary = { label: `Append ${jsonData.subject} Summary`, value: jsonData.summary }
         clo(summary, `jsonParse() summary result`)
-  
+
         const wikiLink = { label: 'Learn more...', value: jsonData.wikiLink }
         const keyTerms = jsonData.keyTerms.map((term) => ({ label: term, value: term }))
         keyTerms.unshift(summary, wikiLink)
         clo(keyTerms, `jsonParse() keyTerms result`)
-  
+
         const selection = await chooseOption(jsonData.subject, keyTerms)
         clo(selection, `jsonParse() selection result`)
 
@@ -414,6 +415,8 @@ export async function createResearchListRequest(promptIn: string | null, nIn: nu
 export async function createQuickSearch(promptIn: string | null = null, userIn: string = '') {
   try {
     logDebug(pluginJson, `createQuickSearch running with prompt:${String(promptIn)} ${userIn}`)
+    const { defaultModel, showStats, max_tokens } = DataStore.settings
+
     const start = new Date()
     const text = await CommandBar.showInput('Quick Search', 'Use GPT-3 to get a summary of your query.')
     const prompt = generateQuickSearchPrompt(text)
@@ -459,6 +462,8 @@ export async function createQuickSearch(promptIn: string | null = null, userIn: 
 export async function summarizeNote(promptIn: string | null = null, userIn: string = '') {
   try {
     logDebug(pluginJson, `summarizeNote running with prompt:${String(promptIn)} ${userIn}`)
+    const { defaultModel, showStats, max_tokens } = DataStore.settings
+
     const start = new Date()
     const text = Editor.content ?? ''
     const prompt = generateSummaryRequest(text)
@@ -496,6 +501,8 @@ export async function summarizeNote(promptIn: string | null = null, userIn: stri
  */
 export async function summarizeSelection(promptIn: string | null = null, userIn: string = '') {
   try {
+    const { defaultModel, max_tokens } = DataStore.settings
+
     const start = new Date()
     const text = Editor.selectedText
     const prompt = generateSummaryRequest(text)
@@ -587,11 +594,10 @@ export async function learnMore(learningTopic: Object) {
   }
 }
 
-
 // Start pulling bulletsAI into functions...
 export async function setPrompts(text: string, linkText: string = '') {
   let prompt = await formatBullet(text)
-  const linkPrompt = await generateWikiLinkPrompt((linkText) ? linkText : text)
+  const linkPrompt = await generateWikiLinkPrompt(linkText ? linkText : text)
   const listPrompt = await formatBulletKeyTerms(text)
   logError(pluginJson, `setting Prompts: \n\n ${prompt}\n${linkPrompt}\n${listPrompt}`)
   return prompt, linkPrompt, listPrompt
@@ -604,6 +610,3 @@ export async function setPrompts(text: string, linkText: string = '') {
 export function updateREADME() {
   generateREADMECommands()
 }
-
-
-
