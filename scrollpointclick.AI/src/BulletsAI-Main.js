@@ -86,7 +86,6 @@ export async function bulletsAI(
         promptList = await generateKeyTermsPrompt(promptIn)
         break
 
-<<<<<<< HEAD
     try {
         const start = new Date()
         const chosenModel = (defaultModel != 'Choose Model') ? defaultModel : 'text-davinci-003'
@@ -112,16 +111,6 @@ export async function bulletsAI(
                 
             case 'remix':
                 // promptIn = await createRemix()
-=======
-      case 'followedLink':
-        logError(pluginJson, `\n----\n-----bulletsAI-----\nFollowed Link\nLink: ${promptIn}\nPrevious Subject: ${prevSubjectIn}\n----\n\n${typeof useFullHistory}`)
-        initializeData()
-        // updateClickedLinksJsonData(promptIn)
-        // updateBulletLinks()
-        promptMain = await generateSubjectSummaryPrompt(useFullHistory == 'true' ? fullHistoryText : promptIn, useFullHistory == 'true' ? '' : prevSubjectIn)
-        promptList = await generateKeyTermsPrompt(promptIn, prevSubjectIn)
-        break
->>>>>>> refs/remotes/origin/different-branch
 
       case 'remix':
         // promptIn = await createRemix()
@@ -191,7 +180,6 @@ function initializeData(query?: string) {
   return loadedJSON
 }
 
-<<<<<<< HEAD
 function updateUnclickedList(unclickedLinks: [string]) {
     const loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
     let unclickedLinksList = []
@@ -229,44 +217,11 @@ function updateUnclickedList(unclickedLinks: [string]) {
         }
     
     loadedJSON['unclickedLinks'] = unclickedLinksList
-=======
-// function updateClickedLinksJsonData(clickedLink: string) {
-//     let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
-//     let unclickedLinks = []
-//     let clickedLinks = [clickedLink]
-//     for (const clicked of loadedJSON['clickedLinks']) {
-//         // logError(pluginJson, `CLICKED == ${clicked}`)
-//         clickedLinks.push(clicked)
-//     }
-//     for (const unclickedLink of loadedJSON['unclickedLinks']) {
-//         const cleanLink = unclickedLink.trim()
-//         if (clickedLinks.includes(unclickedLink.trim())) {
-//             // FIXME Should do something
-//         }
-//         if (unclickedLink.trim() == clickedLink.trim()) {
-//             unclickedLinks.pop(clickedLink)
-//         } else {
-//             unclickedLinks.push(unclickedLink)
-//         }
-//     }
-//     for (const unclickedLink of unclickedLinks) {
-//         if (clickedLinks.includes(unclickedLink.trim())) {
-//             unclickedLinks.pop(unclickedLink)
-//         }
-//     }
-
-//     loadedJSON['unclickedLinks'] = unclickedLinks.filter((v, i, a) => a.indexOf(v) === i)
-//     loadedJSON['clickedLinks'] = clickedLinks.filter((v, i, a) => a.indexOf(v) === i)
-//     DataStore.saveJSON(loadedJSON, `Query Data/${Editor.title}/data.json`)
-//     return loadedJSON
-// }
->>>>>>> refs/remotes/origin/different-branch
 
     DataStore.saveJSON(loadedJSON, `Query Data/${Editor.title}/data.json`)
     }
 }
 
-<<<<<<< HEAD
 function updateClickedLinksJsonData(clickedLink: string) {
     const loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
     let unclickedLinks = []
@@ -324,42 +279,12 @@ function updateBulletLinks(keyTerm?: string = '') {
         return prettyKeyTerm
     }       
 }
-=======
-//     // logError(pluginJson, `Parsing Paragraphs`)
-//     for (const paragraph in Editor.paragraphs) {
-//         // logError(pluginJson, `paragraph:\nTYPE: ${paragraph.type}\nCONTENT: ${paragraph.content}\n`)
-//         if (Editor.paragraphs[paragraph].type == 'list') {
-//             const p = Editor.paragraphs[paragraph]
-//             const splitParagraph1 = p.content.split('[')
-//             if (splitParagraph1 != undefined) {
-
-//                 /// YOU ARE HERE !!!!
-//                 // const bulletAsString = splitParagraph1[2].split(']')[0]
-//                 // logError(pluginJson, `\n\nPARAGRAPH SPLIT]\n\n${bulletAsString}\n\n`)
-//                 //// ISOLATED THE STRING TO MATCH FOR CLICKS
-//             }
-//     }
-//         if (Editor.paragraphs[paragraph].type == 'list' && Editor.paragraphs[paragraph].content.includes(loadedJSON['clickedLinks'])) {
-//             prettyKeyTerm = createPrettyOpenNoteLink(Editor.paragraphs[paragraph].content, Editor.filename, true, Editor.paragraphs[paragraph].content)
-//             // logError(pluginJson, `prettyKeyTerm: ${prettyKeyTerm}`)
-//             Editor.paragraphs[paragraph].content = prettyKeyTerm
-//             Editor.updateParagraph(Editor.paragraphs[paragraph])
-//             Editor.highlight(Editor.paragraphs[paragraph])
-//         }
-//     }
-//     if (keyTerm) {
-//         prettyKeyTerm = createPrettyOpenNoteLink(keyTerm, Editor.filename, true, keyTerm)
-//         return prettyKeyTerm
-//     }
-// }
->>>>>>> refs/remotes/origin/different-branch
 
 async function createTableOfContents() {
   //TODO Add functionality
 }
 
 async function parseResponse(request: Object | null, listRequest: Object | null, subject: string, remixText?: string = '', subtitle: string, fullHistoryText: string) {
-<<<<<<< HEAD
     let summary = ''
     if (request) {
         const responseText = request.choices[0].text.trim()
@@ -368,18 +293,6 @@ async function parseResponse(request: Object | null, listRequest: Object | null,
         const totalTokens = (request.usage.total_tokens + listRequest.usage.total_tokens)
         summary = await formatBulletSummary(subject, responseText, keyTermsList, remixText, subtitle, fullHistoryText)
         return summary
-=======
-  let summary = ''
-  if (request) {
-    const responseText = request.choices[0].text.trim()
-    const keyTermsList = listRequest.choices[0].text.split(',')
-    let keyTerms = []
-    logDebug(pluginJson, `parseResponse Editor.title="${Editor.title}"`)
-    let jsonData = { ...DataStore.loadJSON(`Query Data/${Editor.title}/data.json`) }
-    clo(jsonData, 'parseResponse jsonData')
-    for (const keyTerm of jsonData['unclickedLinks']) {
-      keyTerms.push(keyTerm)
->>>>>>> refs/remotes/origin/different-branch
     }
     for (const keyTerm of keyTermsList) {
       if (!keyTerms.includes(keyTerm)) {
