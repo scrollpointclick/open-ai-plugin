@@ -32,7 +32,7 @@ const completionsComponent = 'completions'
  * Prompt for new research tunnel
  *
  */
-export async function createResearchDigSite(promptIn?: string = '') {
+export async function createResearchDigSite(promptIn?: string | null = null) {
   const subject = promptIn ?? (await CommandBar.showInput('Type in your subject..', 'Start Research'))
   logDebug(pluginJson, `createResearchDigSite subject="${subject}" dir="${researchDirectory}" defaultExtension="${DataStore.defaultFileExtension}"`)
   //   const filename = DataStore.newNoteWithContent(`# ${subject} Research\n`, `${researchDirectory}`, `${subject}.${DataStore.defaultFileExtension}`)
@@ -42,16 +42,11 @@ export async function createResearchDigSite(promptIn?: string = '') {
   await Editor.openNoteByFilename(filename, false, 0, 0, false, true, `# ${subject} Research\n`)
   //   await Editor.openNoteByFilename(filename)
   logDebug(pluginJson, `createResearchDigSite opened Editor note by filename title is now:"${String(Editor.title)}" Editor.filename="${String(Editor.filename)}"`)
-  for (let i = 0; i < 30000; i++) {
-    if (Editor.title === `${subject} Research`) {
-      logDebug(pluginJson, `createResearchDigSite breaking after ${i}ms`)
-      break
-    } else {
-      logDebug(pluginJson, `createResearchDigSite ${i}ms: waiting for Editor.title to be "${subject} Research"`)
-    }
+  if (Editor.title === `${subject} Research`) {
+    await bulletsAI(subject)
+  } else {
+    logDebug(pluginJson, `createResearchDigSite Wanted Editor.title to be "${subject} Research" but Editor.title is "${Editor.title || ''}"`)
   }
-  await bulletsAI(subject)
-  //   DataStore.invokePluginCommandByName(`Bullets AI`, `scrollpointclick.AI`, [`${subject}`])
 }
 
 export async function createRemix() {
