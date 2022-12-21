@@ -35,7 +35,7 @@ export {
 export { bulletsAI, createResearchDigSite, remixQuery, explore } from './BulletsAI-Main'
 export { adjustPreferences, scrollToEntry, retrieveResearchNotes } from './support/helpers'
 
-import './support/fetchOverrides'
+// import './support/fetchOverrides'
 
 // export {  } from './support/formatters'
 // Do not change this line. This is here so your plugin will get recompiled every time you change your plugin.json file

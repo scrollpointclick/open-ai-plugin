@@ -86,32 +86,6 @@ export async function bulletsAI(
         promptList = await generateKeyTermsPrompt(promptIn)
         break
 
-    try {
-        const start = new Date()
-        const chosenModel = (defaultModel != 'Choose Model') ? defaultModel : 'text-davinci-003'
-        const paragraphs = Editor.paragraphs
-        let promptMain = ''
-        let promptList = ''
-        const state = await checkInitialState(promptIn, prevSubjectIn, initialSubject, isCustomRemix)
-        switch (state) {
-            case 'initialQuery':
-                initializeData(promptIn)
-                promptMain = await generateSubjectSummaryPrompt(promptIn)
-                promptList = await generateKeyTermsPrompt(promptIn)
-                break
-                
-            case 'followedLink':
-                logDebug(pluginJson, `\n----\n-----bulletsAI-----\nFollowed Link\nLink: ${promptIn}\nPrevious Subject: ${prevSubjectIn}\n----\n\n${typeof(useFullHistory)}`)
-                initializeData()
-                updateClickedLinksJsonData(promptIn)
-                updateBulletLinks()
-                promptMain = await generateSubjectSummaryPrompt((useFullHistory == 'true') ? fullHistoryText : promptIn, (useFullHistory == 'true') ? '' : prevSubjectIn)
-                promptList = await generateKeyTermsPrompt(promptIn, prevSubjectIn)
-                break
-                
-            case 'remix':
-                // promptIn = await createRemix()
-
       case 'remix':
         // promptIn = await createRemix()
 
@@ -307,8 +281,8 @@ async function parseResponse(request: Object | null, listRequest: Object | null,
     summary = await formatBulletSummary(subject, responseText, keyTermsList, remixText, subtitle, fullHistoryText)
     // clo(summary, 'summary after now writing')
     return summary
-  }
 }
+
 
 async function generateReqBodies(promptMain, promptList, chosenModel) {
   const reqBody: CompletionsRequest = { prompt: promptMain, model: chosenModel, max_tokens: max_tokens }
