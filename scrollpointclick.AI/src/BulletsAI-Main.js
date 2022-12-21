@@ -188,7 +188,6 @@ function updateClickedLinksJsonData(clickedLink: string) {
     const loadedJSON = DataStore.loadJSON(filename)
     const updatedJSON = saveClickedLink(loadedJSON, clickedLink.trim())
     DataStore.saveJSON(updatedJSON, filename)
-    return loadedJSON
   }
 }
 
