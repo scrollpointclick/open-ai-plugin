@@ -5,21 +5,15 @@ import { removeEntry, scrollToEntry } from './helpers'
 const pluginJson = `scrollpointclick.AI/helpers`
 
 export function formatSubtitle(subject: string, prevSubject?: string = '', fullHistory: string, useFullHistory: boolean, fullHistoryText: string) {
-  logError(pluginJson, `\n\nHERE---------${subject}\n${prevSubject}`)
   let fullHistoryTextOut = ''
   let backLink = ''
   let subtitle = ''
   let newFullHistoryLink = ''
   if (prevSubject) {
-    logError(pluginJson, useFullHistory)
-    logError(pluginJson, typeof useFullHistory)
     if (useFullHistory == true || useFullHistory == 'true') {
-      logError(pluginJson, useFullHistory)
       if (fullHistory.includes(prevSubject)) {
-        logError(pluginJson, useFullHistory)
         const prettyPrev = createPrettyOpenNoteLink(prevSubject, Editor.filename, true, prevSubject)
         newFullHistoryLink = fullHistory.replace(prevSubject, prettyPrev)
-        logError(pluginJson, newFullHistoryLink)
       }
       backLink = createPrettyOpenNoteLink(prevSubject, Editor.filename, true, prevSubject)
       fullHistoryTextOut = `${subject} in the context of ${fullHistoryText}`
@@ -113,7 +107,6 @@ export async function formatBulletSummary(subject: string, summary: string, keyT
 export async function formatFurtherLink(text: string) {
   const fileName = Editor.filename
 
-  // logError(pluginJson, `${Editor.filename}`)
   const furtherLink = createPrettyOpenNoteLink(text, fileName, true, text)
   return furtherLink
 }
@@ -130,21 +123,33 @@ export function formatModelInformation(info: Object) {
 }
 
 export function formatTableOfContents() {
-  const headings = Editor.paragraphs.filter((p) => p.type === 'title' && p.headingLevel === 2)
-  let sections = ''
-  for (const subject of headings) {
-    const formattedSubject = createPrettyOpenNoteLink(subject.content, Editor.filename, true, subject.content)
-    sections += `- ${formattedSubject}\n`
+  // removeEntry('Table of Contents')
+  // initializeTableOfContents()
+  if (Editor.paragraphs.filter((p) => p.content !== 'Table of Contents') > 0) {
+    // Editor.prependParagraph('Table of Contents', 'title')
+    Editor.insertParagraphAfterParagraph('---\nTable of Contents', Editor.paragraphs[0], 'title')
+    // Editor.prependParagraph('---\n', 'text')
+  } else {
+    removeEntry('Table of Contents')
   }
-  const tableOfContents = `${sections}---`
-  scrollToEntry('Table of Contents', true, true)
-  // removeEntry('Table of Contents')  -- Also not deleting the Table of Contents heading...
-  Editor.prependParagraph(tableOfContents, 'text')
-  Editor.prependParagraph(`Table of Contents`, 'title')
+  const headings = Editor.paragraphs.filter((p) => p.type === 'title' && p.headingLevel === 2 && p.content !== 'Table of Contents')
+  const unlistedHeadings = headings.filter((p)=> p.heading !== 'Table of Contents')
+  
+  for (const subject of unlistedHeadings) {
+    const formattedSubject = createPrettyOpenNoteLink(subject.content, Editor.filename, true, subject.content)
+    
+    Editor.addParagraphBelowHeadingTitle(formattedSubject, 'list', 'Table of Contents', true, true)
+  }
+  Editor.addParagraphBelowHeadingTitle('---\n', 'text', 'Table of Contents', true, true)
 }
 
-//   const modelsReturned = filteredModels.map((model) => {
-//     const cost = calculateCost(model.id, _tokens)
-//     const costStr = isNaN(cost) ? '' : ` ($${String(parseFloat(cost.toFixed(6)))} max)`
-//     return { label: `${model.id}${costStr}`, value: model.id }
-//   })
+// function initializeTableOfContents() {
+//   const tocHeading = 'Table of Contents'
+//   if (Editor.paragraphs.filter((p) => p.content !== tocHeading)) {
+//     Editor.prependParagraph(tocHeading, 'title')
+//     Editor.prependParagraph('---\n', 'text')
+//     Editor.addParagraphBelowHeadingTitle(`---\n`, 'text', 'Table of Contents', true, false)
+//   } else {
+//     removeEntry(tocHeading)
+//   }
+// }

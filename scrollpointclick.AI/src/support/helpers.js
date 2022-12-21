@@ -87,7 +87,7 @@ export async function adjustPreferences() {
 }
 
 export function removeEntry(heading: string) {
-  logError(pluginJson, `\n\n----- ----- -----\n${heading}\n\n---- ----- ---- \n\n`)
+  logDebug(pluginJson, `\n\n----- Removing Entry -----\n${heading}\n\n---- ----- ---- \n\n`)
   const paraBeforeDelete = Editor.paragraphs.find((p) => p.content === heading)
   if (paraBeforeDelete) {
     const contentRange = paraBeforeDelete.contentRange
@@ -98,14 +98,14 @@ export function removeEntry(heading: string) {
 }
 
 export function scrollToEntry(heading: string, deleteItem?: boolean = false, foldHeading?: boolean = false) {
-  logError(pluginJson, `\n\n----- ----- -----\n${heading}\n\n${deleteItem}\n\n---- ----- ---- \n\n`)
+  // logDebug(pluginJson, `\n\n----- Scrolling to Entry -----\n${heading}\n\n${deleteItem}\n\n---- ----- ---- \n\n`)
   const selectedHeading = Editor.paragraphs.find((p) => p.content === heading)
   if (selectedHeading) {
     const contentRange = selectedHeading.contentRange
     let firstCharacter
     if (deleteItem) {
       firstCharacter = contentRange.start - 1 // back up one character
-      logError(pluginJson, `\n\n----- ----- -----\n${firstCharacter}\n\n---- ----- ---- \n\n`)
+      // logDebug(pluginJson, `\n\n----- ----- -----\n${firstCharacter}\n\n---- ----- ---- \n\n`)
       // removeContentUnderHeading(Editor, heading, true, false)
       removeEntry(heading)
     } else {

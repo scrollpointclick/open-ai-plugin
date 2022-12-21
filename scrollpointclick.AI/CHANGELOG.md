@@ -4,6 +4,24 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.2] - 2022-12-21 (@scrollpointclick)
+
+#### **Added**
+
+
+#### **Changed**
+
+
+#### **Fixed**
+- @dwertheimer fixed JSON updating issue.
+- Bullets now properly format to change to x-callback urls once they have been used.
+- Table of Contents heading is no longer duplicating.
+- Removed (or changed) all of the unnecessary logError calls.
+
+#### **Known Issues**
+- Table of Contents is showing at the bottom of the page instead of the top. Probably an easy fix.
+
+
 [0.1.99] - 2022-12-19 (@scrollpointclick)
 
 

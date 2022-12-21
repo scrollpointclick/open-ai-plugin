@@ -34,12 +34,9 @@ export async function createResearchDigSite(promptIn?: string | null = null) {
   const { researchDirectory } = DataStore.settings
   const subject = promptIn ?? (await CommandBar.showInput('Type in your subject..', 'Start Research'))
   logDebug(pluginJson, `createResearchDigSite subject="${subject}" dir="${researchDirectory}" defaultExtension="${DataStore.defaultFileExtension}"`)
-  //   const filename = DataStore.newNoteWithContent(`# ${subject} Research\n`, `${researchDirectory}`, `${subject}.${DataStore.defaultFileExtension}`)
-  // logDebug(pluginJson, `createResearchDigSite note created; filename="${filename}" in DataStore. Editor.title is now:${String(Editor?.title)}`)
   const filename = `${researchDirectory}/${subject}.${DataStore.defaultFileExtension || '.txt'}`
   logDebug(pluginJson, `createResearchDigSite filename="${filename}" Now trying to open note by filename`)
   await Editor.openNoteByFilename(filename, false, 0, 0, false, true, `# ${subject} Research\n`)
-  //   await Editor.openNoteByFilename(filename)
   logDebug(pluginJson, `createResearchDigSite opened Editor note by filename title is now:"${String(Editor.title)}" Editor.filename="${String(Editor.filename)}"`)
   if (Editor.title === `${subject} Research`) {
     await bulletsAI(subject)
@@ -88,10 +85,9 @@ export async function bulletsAI(
         break
 
       case 'followedLink':
-        logError(pluginJson, `\n----\n-----bulletsAI-----\nFollowed Link\nLink: ${promptIn}\nPrevious Subject: ${prevSubjectIn}\n----\n\n${typeof useFullHistory}`)
+        logDebug(pluginJson, `\n----\n-----bulletsAI-----\nFollowed Link\nLink: ${promptIn}\nPrevious Subject: ${prevSubjectIn}\n----\n\n${typeof useFullHistory}`)
         initializeData()
         updateClickedLinksJsonData(promptIn)
-        // updateBulletLinks()
         promptMain = await generateSubjectSummaryPrompt(useFullHistory == 'true' ? fullHistoryText : promptIn, useFullHistory == 'true' ? '' : prevSubjectIn)
         promptList = await generateKeyTermsPrompt(promptIn, prevSubjectIn)
         break
@@ -112,6 +108,7 @@ export async function bulletsAI(
     let { request, listRequest } = await generateRequests(reqBody, reqListBody, chosenModel)
     const summary = await parseResponse(request, listRequest, promptIn, '', formattedSubtitle, newFullHistoryText)
 
+    updateBulletLinks()
     Editor.appendParagraph(summary)
     formatTableOfContents()
     scrollToEntry(promptIn, false)
@@ -186,8 +183,10 @@ function updateClickedLinksJsonData(clickedLink: string) {
   if (Editor.title) {
     const filename = `Query Data/${Editor.title}/data.json`
     const loadedJSON = DataStore.loadJSON(filename)
-    const updatedJSON = saveClickedLink(loadedJSON, clickedLink.trim())
-    DataStore.saveJSON(updatedJSON, filename)
+    if (!loadedJSON['clickedLinks'].includes(clickedLink)) {
+      const updatedJSON = saveClickedLink(loadedJSON, clickedLink.trim())
+      DataStore.saveJSON(updatedJSON, filename)
+    }
   }
 }
 
@@ -195,35 +194,26 @@ function updateBulletLinks(keyTerm?: string = '') {
   let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
   let prettyKeyTerm = ''
 
-  // logError(pluginJson, `Parsing Paragraphs`)
-  for (const paragraph in Editor.paragraphs) {
-    // logError(pluginJson, `paragraph:\nTYPE: ${paragraph.type}\nCONTENT: ${paragraph.content}\n`)
-    if (Editor.paragraphs[paragraph].type == 'list') {
-      const p = Editor.paragraphs[paragraph]
-      const splitParagraph1 = p.content.split('[')
-      if (splitParagraph1 != undefined) {
-        /// YOU ARE HERE !!!!
-        // const bulletAsString = splitParagraph1[2].split(']')[0]
-        // logError(pluginJson, `\n\nPARAGRAPH SPLIT]\n\n${bulletAsString}\n\n`)
-        //// ISOLATED THE STRING TO MATCH FOR CLICKS
+  let bulletsToUpdate = Editor.paragraphs.forEach(f=> {
+    // logDebug(pluginJson, `\n\n---- WHAT IS F ----\n\n ${f}\n\n`)
+    if (f.type == 'list') {
+      for (const c of loadedJSON['clickedLinks']) {
+        const encodedLink = encodeURI(c)
+        logDebug(pluginJson, `\n\n---- WHAT IS F.CONTENT ----\n\n ${f.content}\n\n`)
+
+
+
+        if (f.content.includes(`arg0=${encodedLink}`)) {
+          logDebug(pluginJson, `\n\n---- MATCHES C ----\n\n ${c}\n\n`)
+          prettyKeyTerm = createPrettyOpenNoteLink(c, Editor.filename, true, c)
+          logDebug(pluginJson, `\n\n---- Pretty Key Term ----\n\n ${prettyKeyTerm}\n\n`)
+          f.type = 'text'
+          f.content = `### ${prettyKeyTerm}`
+          Editor.updateParagraph(f)
+        }
       }
     }
-    if (Editor.paragraphs[paragraph].type == 'list' && Editor.paragraphs[paragraph].content.includes(loadedJSON['clickedLinks'])) {
-      prettyKeyTerm = createPrettyOpenNoteLink(Editor.paragraphs[paragraph].content, Editor.filename, true, Editor.paragraphs[paragraph].content)
-      // logError(pluginJson, `prettyKeyTerm: ${prettyKeyTerm}`)
-      Editor.paragraphs[paragraph].content = prettyKeyTerm
-      Editor.updateParagraph(Editor.paragraphs[paragraph])
-      Editor.highlight(Editor.paragraphs[paragraph])
-    }
-  }
-  if (keyTerm) {
-    prettyKeyTerm = createPrettyOpenNoteLink(keyTerm, Editor.filename, true, keyTerm)
-    return prettyKeyTerm
-  }
-}
-
-async function createTableOfContents() {
-  //TODO Add functionality
+  })
 }
 
 async function parseResponse(request: Object | null, listRequest: Object | null, subject: string, remixText?: string = '', subtitle: string, fullHistoryText: string) {
@@ -288,3 +278,5 @@ export async function explore(prevSubjectIn: string) {
 
   await bulletsAI(selectedSubtitle, prevSubjectIn)
 }
+
+

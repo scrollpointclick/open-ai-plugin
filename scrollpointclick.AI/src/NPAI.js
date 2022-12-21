@@ -289,7 +289,6 @@ export async function createResearchRequest(promptIn: string | null = null, nIn:
     const results = await getPromptAndNumberOfResults(promptIn, nIn) // adding a little extra code to keep Flow happy with type checking
     let { prompt } = results
     const { n } = results
-    logError(pluginJson, `Look at this output - ${prompt}`)
     prompt = generateResearchPrompt(prompt, n)
 
     let chosenModel = defaultModel
@@ -331,11 +330,9 @@ export async function createResearchRequest(promptIn: string | null = null, nIn:
 
 export async function exploreList(selection: string, subject: string, options: [string]) {
   const currentPage = { selection: selection, options: options }
-  logError(pluginJson, `${currentPage}`)
   history.push(currentPage)
 
   logDebug(pluginJson, `exploreList started with ${selection} and ${options}`)
-  logError(pluginJson, `${clo(history, 'exploreList history')}`)
   const prompt = `${selection} as it pertains to ${subject}`
   await createResearchListRequest(selection)
 }
@@ -599,7 +596,6 @@ export async function setPrompts(text: string, linkText: string = '') {
   let prompt = await formatBullet(text)
   const linkPrompt = await generateWikiLinkPrompt(linkText ? linkText : text)
   const listPrompt = await formatBulletKeyTerms(text)
-  logError(pluginJson, `setting Prompts: \n\n ${prompt}\n${linkPrompt}\n${listPrompt}`)
   return prompt, linkPrompt, listPrompt
 }
 
