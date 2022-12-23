@@ -4,6 +4,13 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.2.1] - 2022-12-22 (@dwertheimer)
+
+#### **Fixed**
+- Table of Contents now goes to top of page
+- Stop execution when remix text is blank
+- Cleaned up some JS/Flow issues
+
 [0.2] - 2022-12-21 (@scrollpointclick)
 
 #### **Added**

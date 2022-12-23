@@ -1,13 +1,14 @@
 // @flow
-import { JSONData } from './support/AIFlowTypes'
-import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import pluginJson from '../plugin.json'
+import { type JSONData } from './support/AIFlowTypes'
 import { makeRequest } from './NPAI'
-import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
-import { removeContentUnderHeading } from '@helpers/NPParagraph'
 import { generateSubjectSummaryPrompt, generateKeyTermsPrompt, generateExplorationPrompt } from './support/prompts'
 import { formatSubtitle, formatKeyTermsForSummary, formatBulletSummary, formatFurtherLink, formatModelInformation, formatTableOfContents } from './support/formatters'
 import { scrollToEntry } from './support/helpers'
+import { removeContentUnderHeading } from '@helpers/NPParagraph'
+import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
+import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
+import { showMessage } from '@helpers/userInput'
 
 const availableModels = ['text-davinci-003', 'text-curie-001', 'text-babbage-001', 'text-ada-001']
 type CompletionsRequest = { model: string, prompt?: string, max_tokens?: number, user?: string, suffix?: string, temperature?: string, top_p?: string, n?: number }
@@ -104,12 +105,12 @@ export async function bulletsAI(
     if (useFullHistory == 'true') {
       promptMain = await generateSubjectSummaryPrompt(newFullHistoryText)
     }
-    let { reqBody, reqListBody } = await generateReqBodies(useFullHistory == true ? newFullHistoryText : promptMain, promptList, chosenModel)
-    let { request, listRequest } = await generateRequests(reqBody, reqListBody, chosenModel)
+    const { reqBody, reqListBody } = await generateReqBodies(useFullHistory == true ? newFullHistoryText : promptMain, promptList, chosenModel)
+    const { request, listRequest } = await generateRequests(reqBody, reqListBody, chosenModel)
     const summary = await parseResponse(request, listRequest, promptIn, '', formattedSubtitle, newFullHistoryText)
 
     updateBulletLinks()
-    Editor.appendParagraph(summary)
+    Editor.appendParagraph(summary, 'text')
     formatTableOfContents()
     scrollToEntry(promptIn, false)
   } catch (error) {
@@ -145,7 +146,7 @@ function initializeData(query?: string) {
   let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
   if (!loadedJSON) {
     if (query) {
-      let newJSON = {
+      const newJSON = {
         initialSubject: query,
         unclickedLinks: [],
         clickedLinks: [],
@@ -191,17 +192,15 @@ function updateClickedLinksJsonData(clickedLink: string) {
 }
 
 function updateBulletLinks(keyTerm?: string = '') {
-  let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
+  const loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
   let prettyKeyTerm = ''
 
-  let bulletsToUpdate = Editor.paragraphs.forEach(f=> {
+  const bulletsToUpdate = Editor.paragraphs.forEach((f) => {
     // logDebug(pluginJson, `\n\n---- WHAT IS F ----\n\n ${f}\n\n`)
     if (f.type == 'list') {
       for (const c of loadedJSON['clickedLinks']) {
         const encodedLink = encodeURI(c)
         logDebug(pluginJson, `\n\n---- WHAT IS F.CONTENT ----\n\n ${f.content}\n\n`)
-
-
 
         if (f.content.includes(`arg0=${encodedLink}`)) {
           logDebug(pluginJson, `\n\n---- MATCHES C ----\n\n ${c}\n\n`)
@@ -221,9 +220,9 @@ async function parseResponse(request: Object | null, listRequest: Object | null,
   if (request) {
     const responseText = request.choices[0].text.trim()
     const keyTermsList = listRequest.choices[0].text.split(',')
-    let keyTerms = []
+    const keyTerms = []
     logDebug(pluginJson, `parseResponse Editor.title="${Editor.title}"`)
-    let jsonData = { ...DataStore.loadJSON(`Query Data/${Editor.title}/data.json`) }
+    const jsonData = { ...DataStore.loadJSON(`Query Data/${Editor.title}/data.json`) }
     clo(jsonData, 'parseResponse jsonData BEFORE')
     for (const keyTerm of jsonData['unclickedLinks']) {
       keyTerms.push(keyTerm.trim())
@@ -267,7 +266,7 @@ async function generateRequests(reqBody: CompletionsRequest, reqListBody: Comple
  */
 export async function remixQuery(subject: string) {
   const additionalDetails = await CommandBar.showInput('Rewrite this query with addional detail.', 'Remix')
-  bulletsAI(subject, additionalDetails)
+  await bulletsAI(subject, additionalDetails)
 }
 
 export async function explore(prevSubjectIn: string) {
@@ -275,8 +274,9 @@ export async function explore(prevSubjectIn: string) {
 
   // const selectedHeading = await CommandBar.showInput('Select unique heading.', 'OK') // Currently Disabled.
   const selectedSubtitle = await CommandBar.showInput('Type in your prompt.', 'OK')
-
-  await bulletsAI(selectedSubtitle, prevSubjectIn)
+  if (selectedSubtitle?.length) {
+    await bulletsAI(selectedSubtitle, prevSubjectIn)
+  } else {
+    await showMessage('No prompt entered. Please try again.')
+  }
 }
-
-

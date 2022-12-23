@@ -1,6 +1,9 @@
+// @flow
+
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
 import { removeEntry, scrollToEntry } from './helpers'
+import { removeContentUnderHeading } from '@helpers/NPParagraph'
 
 const pluginJson = `scrollpointclick.AI/helpers`
 
@@ -123,21 +126,20 @@ export function formatModelInformation(info: Object) {
 }
 
 export function formatTableOfContents() {
-  // removeEntry('Table of Contents')
   // initializeTableOfContents()
-  if (Editor.paragraphs.filter((p) => p.content !== 'Table of Contents') > 0) {
-    // Editor.prependParagraph('Table of Contents', 'title')
-    Editor.insertParagraphAfterParagraph('---\nTable of Contents', Editor.paragraphs[0], 'title')
-    // Editor.prependParagraph('---\n', 'text')
+  if (!Editor.paragraphs.find((p) => p.content === 'Table of Contents')) {
+    Editor.prependParagraph('---', 'text')
+    Editor.prependParagraph('## Table of Contents', 'text')
+    // Editor.insertParagraphAfterParagraph('---\nTable of Contents', Editor.paragraphs[0], 'title')
   } else {
-    removeEntry('Table of Contents')
+    removeContentUnderHeading(Editor, 'Table of Contents', true, true) // keep the heading but delete the content
   }
   const headings = Editor.paragraphs.filter((p) => p.type === 'title' && p.headingLevel === 2 && p.content !== 'Table of Contents')
-  const unlistedHeadings = headings.filter((p)=> p.heading !== 'Table of Contents')
-  
+  const unlistedHeadings = headings.filter((p) => p.heading !== 'Table of Contents')
+
   for (const subject of unlistedHeadings) {
     const formattedSubject = createPrettyOpenNoteLink(subject.content, Editor.filename, true, subject.content)
-    
+
     Editor.addParagraphBelowHeadingTitle(formattedSubject, 'list', 'Table of Contents', true, true)
   }
   Editor.addParagraphBelowHeadingTitle('---\n', 'text', 'Table of Contents', true, true)
