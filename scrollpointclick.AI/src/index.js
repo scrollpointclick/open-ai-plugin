@@ -30,12 +30,12 @@ export {
   introWizard,
   helpWizard,
   updateREADME,
-  noteToPrompt
+  noteToPrompt,
 } from './NPAI' // add one of these for every command specifified in plugin.json (the function could be in any file as long as it's exported)
 export { bulletsAI, createResearchDigSite, remixQuery, explore } from './BulletsAI-Main'
 export { adjustPreferences, scrollToEntry, retrieveResearchNotes } from './support/helpers'
 
-// import './support/fetchOverrides'
+import './support/fetchOverrides'
 
 // export {  } from './support/formatters'
 // Do not change this line. This is here so your plugin will get recompiled every time you change your plugin.json file

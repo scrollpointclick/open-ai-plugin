@@ -126,23 +126,23 @@ export function formatModelInformation(info: Object) {
 }
 
 export function formatTableOfContents() {
+  const tocLink = createPrettyRunPluginLink('Table of Contents', 'scrollpointclick.AI', 'Scroll to Entry', ['Table of Contents', 'false', 'toggle'])
   // initializeTableOfContents()
-  if (!Editor.paragraphs.find((p) => p.content === 'Table of Contents')) {
-    Editor.prependParagraph('---', 'text')
-    Editor.prependParagraph('## Table of Contents', 'text')
+  if (!Editor.paragraphs.find((p) => p.content === tocLink)) {
+    Editor.prependParagraph(`## ${tocLink}`, 'text')
     // Editor.insertParagraphAfterParagraph('---\nTable of Contents', Editor.paragraphs[0], 'title')
   } else {
-    removeContentUnderHeading(Editor, 'Table of Contents', true, true) // keep the heading but delete the content
+    removeContentUnderHeading(Editor, tocLink, true, true) // keep the heading but delete the content
   }
-  const headings = Editor.paragraphs.filter((p) => p.type === 'title' && p.headingLevel === 2 && p.content !== 'Table of Contents')
-  const unlistedHeadings = headings.filter((p) => p.heading !== 'Table of Contents')
+  const headings = Editor.paragraphs.filter((p) => p.type === 'title' && p.headingLevel === 2 && p.content !== tocLink)
+  const unlistedHeadings = headings.filter((p) => p.heading !== tocLink)
 
   for (const subject of unlistedHeadings) {
     const formattedSubject = createPrettyOpenNoteLink(subject.content, Editor.filename, true, subject.content)
 
-    Editor.addParagraphBelowHeadingTitle(formattedSubject, 'list', 'Table of Contents', true, true)
+    Editor.addParagraphBelowHeadingTitle(formattedSubject, 'list', tocLink, true, true)
   }
-  Editor.addParagraphBelowHeadingTitle('---\n', 'text', 'Table of Contents', true, true)
+  Editor.addParagraphBelowHeadingTitle('---\n', 'text', tocLink, true, true)
 }
 
 // function initializeTableOfContents() {

@@ -4,6 +4,12 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.2.2] - 2022-12-23 (@dwertheimer)
+
+#### **Added**
+- Made Table of Contents heading clickable to toggle folding
+- in scrollToEntry: toggleFolding can now be true|false|toggle
+
 [0.2.1] - 2022-12-22 (@dwertheimer)
 
 #### **Fixed**

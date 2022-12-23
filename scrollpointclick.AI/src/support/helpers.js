@@ -1,7 +1,5 @@
 // @flow
 
-import { formatTableOfContents } from './formatters'
-
 const pluginJson = `scrollpointclick.AI/helpers`
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
@@ -105,15 +103,20 @@ export function removeEntry(heading: string) {
  * Plugin entry point for (hidden) command: /Scroll to Entry (called via x-callback-url)
  * @param {string} heading - the heading to scroll to
  * @param {*} deleteItem - whether to delete the entry with the given heading first
- * @param {*} foldHeading - whether to fold the heading after scrolling to it
+ * @param {'true'|'false'|'toggle'} foldHeading - whether to fold the heading after scrolling to it
  */
-export function scrollToEntry(heading: string, _deleteItem?: ?string = null, _foldHeading?: ?string = null): void {
+export function scrollToEntry(_heading: string, _deleteItem?: ?string = null, foldHeading?: ?string = null): void {
   try {
+    const heading =
+      _heading === 'Table of Contents'
+        ? createPrettyRunPluginLink('Table of Contents', 'scrollpointclick.AI', 'Scroll to Entry', ['Table of Contents', 'false', 'toggle'])
+        : _heading
+
     const deleteItem = _deleteItem === 'true' ? true : false
-    const foldHeading = _foldHeading === 'true' ? true : false
     // logDebug(pluginJson, `\n\n----- Scrolling to Entry -----\n${heading}\n\n${deleteItem}\n\n---- ----- ---- \n\n`)
     logDebug(pluginJson, `\n\n----- Scrolling to Entry -----\nheading:"${heading}" deleteItem:${String(deleteItem)} foldHeading:${String(foldHeading)}\n`)
-    const selectedHeading = Editor.paragraphs.find((p) => p.content === heading)
+    // Editor.paragraphs.forEach((p) => logDebug(pluginJson, `p.content = ${p.content} =${p.content.startsWith(heading)} && Editor.isFolded(p)=${Editor.isFolded(p)}`))
+    const selectedHeading = Editor.paragraphs.find((p) => p.content === heading || (p.content.startsWith(heading) && Editor.isFolded(p)))
     if (selectedHeading) {
       logDebug(pluginJson, `scrollToEntry found selectedHeading="${selectedHeading.content}" lineIndex=${selectedHeading.lineIndex}`)
       let firstCharacter
@@ -126,7 +129,10 @@ export function scrollToEntry(heading: string, _deleteItem?: ?string = null, _fo
         logDebug(pluginJson, `scrollToEntry after delete`)
       } else {
         firstCharacter = contentRange?.start || 0
-        if (foldHeading === true && !Editor.isFolded(selectedHeading)) {
+        if (foldHeading === 'true' && !Editor.isFolded(selectedHeading)) Editor.toggleFolding(selectedHeading)
+        if (foldHeading === 'false' && Editor.isFolded(selectedHeading)) Editor.toggleFolding(selectedHeading)
+        if (foldHeading === 'toggle') {
+          logDebug(pluginJson, `scrollToEntry isFolded:${String(Editor.isFolded(selectedHeading))} `)
           Editor.toggleFolding(selectedHeading)
         }
       }
