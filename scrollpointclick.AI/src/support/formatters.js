@@ -93,7 +93,7 @@ export async function formatBulletSummary(subject: string, summary: string, keyT
   let title = subject.trim()
   const jsonData = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
   const keyTermsOutput = await formatKeyTermsForSummary(keyTerms, subject, remixText, subtitle ? subtitle : '', fullHistoryText)
-  const removeParagraphText = createPrettyRunPluginLink('**✖**', 'scrollpointclick.AI', 'Scroll to Entry', [subject, true])
+  const removeParagraphText = createPrettyRunPluginLink('**✖**', 'scrollpointclick.AI', 'Scroll to Entry', [subject, String(true)])
   const exploreText = createPrettyRunPluginLink('Explore', 'scrollpointclick.AI', 'Explore - OpenAI', [subject])
 
   const remixPrompt = createPrettyRunPluginLink(`Remix`, 'scrollpointclick.AI', 'Bullets AI', ['', subject, jsonData['initialSubject'], true])

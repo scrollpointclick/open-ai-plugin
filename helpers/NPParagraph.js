@@ -58,7 +58,7 @@ export function deleteEntireBlock(note: CoreNoteFields, para: TParagraph, includ
  */
 export function removeContentUnderHeading(note: CoreNoteFields, heading: string, includeFromStartOfSection: boolean = false, keepHeading: boolean = true) {
   // logDebug(`NPParagraph/removeContentUnderHeading`, `In '${note.title ?? ''}' remove items under title: "${heading}"`)
-  const paras = note.paragraphs.find((p) => p.type === 'title' && p.content.includes(heading))
+  const paras = note.paragraphs.find((p) => p.type === 'title' && p.content === heading)
   if (paras && paras.lineIndex != null) {
     deleteEntireBlock(note, paras, includeFromStartOfSection, keepHeading)
     logDebug(`NPParagraph/removeContentUnderHeading`, `Note now has ${note.paragraphs.length} lines`)

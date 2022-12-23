@@ -1,5 +1,7 @@
 // @flow
 
+import { formatTableOfContents } from './formatters'
+
 const pluginJson = `scrollpointclick.AI/helpers`
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
@@ -90,31 +92,48 @@ export function removeEntry(heading: string) {
   logDebug(pluginJson, `\n\n----- Removing Entry -----\n${heading}\n\n---- ----- ---- \n\n`)
   const paraBeforeDelete = Editor.paragraphs.find((p) => p.content === heading)
   if (paraBeforeDelete) {
+    logDebug(pluginJson, `removeEntry heading in document: "${paraBeforeDelete.content}" lineIndex:${paraBeforeDelete.lineIndex}`)
     const contentRange = paraBeforeDelete.contentRange
     const characterBeforeParagraph = contentRange.start - 1 // back up one character
-    removeContentUnderHeading(Editor, heading, true, false) // delete the paragraph
+    removeContentUnderHeading(Editor, heading, false, false) // delete the paragraph
+    logDebug(pluginJson, `removeEntry removed para: ${heading}`)
     Editor.highlightByIndex(characterBeforeParagraph, 0) // scroll to where it was
   }
 }
 
-export function scrollToEntry(heading: string, deleteItem?: boolean = false, foldHeading?: boolean = false) {
-  // logDebug(pluginJson, `\n\n----- Scrolling to Entry -----\n${heading}\n\n${deleteItem}\n\n---- ----- ---- \n\n`)
-  const selectedHeading = Editor.paragraphs.find((p) => p.content === heading)
-  if (selectedHeading) {
-    const contentRange = selectedHeading.contentRange
-    let firstCharacter
-    if (deleteItem) {
-      firstCharacter = contentRange.start - 1 // back up one character
-      // logDebug(pluginJson, `\n\n----- ----- -----\n${firstCharacter}\n\n---- ----- ---- \n\n`)
-      // removeContentUnderHeading(Editor, heading, true, false)
-      removeEntry(heading)
-    } else {
-      firstCharacter = contentRange.start // back up one character
+/**
+ * Plugin entry point for (hidden) command: /Scroll to Entry (called via x-callback-url)
+ * @param {string} heading - the heading to scroll to
+ * @param {*} deleteItem - whether to delete the entry with the given heading first
+ * @param {*} foldHeading - whether to fold the heading after scrolling to it
+ */
+export function scrollToEntry(heading: string, _deleteItem?: ?string = null, _foldHeading?: ?string = null): void {
+  try {
+    const deleteItem = _deleteItem === 'true' ? true : false
+    const foldHeading = _foldHeading === 'true' ? true : false
+    // logDebug(pluginJson, `\n\n----- Scrolling to Entry -----\n${heading}\n\n${deleteItem}\n\n---- ----- ---- \n\n`)
+    logDebug(pluginJson, `\n\n----- Scrolling to Entry -----\nheading:"${heading}" deleteItem:${String(deleteItem)} foldHeading:${String(foldHeading)}\n`)
+    const selectedHeading = Editor.paragraphs.find((p) => p.content === heading)
+    if (selectedHeading) {
+      logDebug(pluginJson, `scrollToEntry found selectedHeading="${selectedHeading.content}" lineIndex=${selectedHeading.lineIndex}`)
+      let firstCharacter
+      const contentRange = selectedHeading.contentRange
+      if (deleteItem) {
+        firstCharacter = (contentRange?.start || 1) - 1 // back up one character
+        // logDebug(pluginJson, `\n\n----- ----- -----\n${firstCharacter}\n\n---- ----- ---- \n\n`)
+        // removeContentUnderHeading(Editor, heading, true, false)
+        removeEntry(heading)
+        logDebug(pluginJson, `scrollToEntry after delete`)
+      } else {
+        firstCharacter = contentRange?.start || 0
+        if (foldHeading === true && !Editor.isFolded(selectedHeading)) {
+          Editor.toggleFolding(selectedHeading)
+        }
+      }
       Editor.highlightByIndex(firstCharacter, 0) // scroll to where it was
     }
-    if (foldHeading == true && !Editor.isFolded(selectedHeading)) {
-      Editor.toggleFolding(selectedHeading)
-    }
+  } catch (error) {
+    logDebug(pluginJson, `scrollToEntry error: ${JSP(error)}`)
   }
 }
 
