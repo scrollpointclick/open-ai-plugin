@@ -205,7 +205,7 @@ function updateBulletLinks(keyTerm?: string = '') {
           prettyKeyTerm = createPrettyOpenNoteLink(c, Editor.filename, true, c)
           // logDebug(pluginJson, `\n\n---- Pretty Key Term ----\n\n ${prettyKeyTerm}\n\n`)
           f.type = 'text'
-          f.content = `### ${prettyKeyTerm}`
+          f.content = `**${prettyKeyTerm}**`
           Editor.updateParagraph(f)
         }
       }

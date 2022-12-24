@@ -95,7 +95,7 @@ export async function formatBulletSummary(subject: string, summary: string, keyT
 
   const remixPrompt = createPrettyRunPluginLink(`Remix`, 'scrollpointclick.AI', 'Bullets AI', ['', subject, jsonData['initialSubject'], true])
   // let output = `## ${title}${(subject != subtitle) ? `\n#### ${subtitle}` : ''}\n#### ${remixPrompt}\n${summary}\n${keyTermsOutput}`
-  let output = `## ${capitalizeFirstLetter(title)}${subject != subtitle ? `\n#### ${subtitle}` : ''}\n${exploreText}\n${summary}\n${removeParagraphText}\n${keyTermsOutput}`
+  let output = `## ${capitalizeFirstLetter(title)}${subject != subtitle ? `\n#### ${subtitle}` : ''}\n${exploreText}\t${removeParagraphText}\n${summary}\n${keyTermsOutput}`
   return output
 }
 
