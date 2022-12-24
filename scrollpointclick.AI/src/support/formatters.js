@@ -2,7 +2,7 @@
 
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
-import { removeEntry, scrollToEntry } from './helpers'
+import { removeEntry, scrollToEntry, capitalizeFirstLetter } from './helpers'
 import { removeContentUnderHeading } from '@helpers/NPParagraph'
 
 const pluginJson = `scrollpointclick.AI/helpers`
@@ -19,16 +19,16 @@ export function formatSubtitle(subject: string, prevSubject?: string = '', fullH
         newFullHistoryLink = fullHistory.replace(prevSubject, prettyPrev)
       }
       backLink = createPrettyOpenNoteLink(prevSubject, Editor.filename, true, prevSubject)
-      fullHistoryTextOut = `${subject} in the context of ${fullHistoryText}`
-      subtitle = `${subject} in the context of ${newFullHistoryLink ? newFullHistoryLink : fullHistory}`
+      fullHistoryTextOut = `${capitalizeFirstLetter(subject)} in the context of ${fullHistoryText}`
+      subtitle = `${capitalizeFirstLetter(subject)} in the context of ${newFullHistoryLink ? newFullHistoryLink : fullHistory}`
     } else {
-      fullHistoryTextOut = `${subject} in the context of ${prevSubject}`
+      fullHistoryTextOut = `${capitalizeFirstLetter(subject)} in the context of ${prevSubject}`
       backLink = createPrettyOpenNoteLink(prevSubject, Editor.filename, true, prevSubject)
-      subtitle = `${subject} in the context of ${backLink}`
+      subtitle = `${capitalizeFirstLetter(subject)} in the context of ${backLink}`
     }
   } else {
-    fullHistoryTextOut = subject
-    subtitle = subject
+    fullHistoryTextOut = capitalizeFirstLetter(subject)
+    subtitle = capitalizeFirstLetter(subject)
   }
 
   let outputFullHistoryText = fullHistoryTextOut,
@@ -51,10 +51,7 @@ export async function formatKeyTermsForSummary(keyTerms: [string], subject: stri
   let prettyKeyTerm = ''
 
   for (const keyTerm of keyTerms) {
-    // TODO: Once JSON is working, have it check for clicked links to determine how to format the following.
     if (jsonData['clickedLinks'].includes(keyTerm)) {
-      // prettyKeyTerm = updateBulletLinks(keyTerm)
-      // keyString = `\t${prettyKeyTerm}\n`
     } else {
       prettyKeyTerm = createPrettyRunPluginLink(`${keyTerm.trim()}`, 'scrollpointclick.AI', 'Bullets AI', [
         keyTerm.trim(),
@@ -98,7 +95,7 @@ export async function formatBulletSummary(subject: string, summary: string, keyT
 
   const remixPrompt = createPrettyRunPluginLink(`Remix`, 'scrollpointclick.AI', 'Bullets AI', ['', subject, jsonData['initialSubject'], true])
   // let output = `## ${title}${(subject != subtitle) ? `\n#### ${subtitle}` : ''}\n#### ${remixPrompt}\n${summary}\n${keyTermsOutput}`
-  let output = `## ${title}${subject != subtitle ? `\n#### ${subtitle}` : ''}\n${exploreText}\n${summary}\n${removeParagraphText}\n${keyTermsOutput}`
+  let output = `## ${capitalizeFirstLetter(title)}${subject != subtitle ? `\n#### ${subtitle}` : ''}\n${exploreText}\n${summary}\n${removeParagraphText}\n${keyTermsOutput}`
   return output
 }
 
@@ -127,10 +124,8 @@ export function formatModelInformation(info: Object) {
 
 export function formatTableOfContents() {
   const tocLink = createPrettyRunPluginLink('Table of Contents', 'scrollpointclick.AI', 'Scroll to Entry', ['Table of Contents', 'false', 'toggle'])
-  // initializeTableOfContents()
   if (!Editor.paragraphs.find((p) => p.content === tocLink)) {
     Editor.prependParagraph(`## ${tocLink}`, 'text')
-    // Editor.insertParagraphAfterParagraph('---\nTable of Contents', Editor.paragraphs[0], 'title')
   } else {
     removeContentUnderHeading(Editor, tocLink, true, true) // keep the heading but delete the content
   }
@@ -145,13 +140,3 @@ export function formatTableOfContents() {
   Editor.addParagraphBelowHeadingTitle('---\n', 'text', tocLink, true, true)
 }
 
-// function initializeTableOfContents() {
-//   const tocHeading = 'Table of Contents'
-//   if (Editor.paragraphs.filter((p) => p.content !== tocHeading)) {
-//     Editor.prependParagraph(tocHeading, 'title')
-//     Editor.prependParagraph('---\n', 'text')
-//     Editor.addParagraphBelowHeadingTitle(`---\n`, 'text', 'Table of Contents', true, false)
-//   } else {
-//     removeEntry(tocHeading)
-//   }
-// }

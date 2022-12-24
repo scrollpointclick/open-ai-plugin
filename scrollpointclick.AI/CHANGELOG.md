@@ -4,6 +4,15 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.2.3] - 2022-12-23 (@scrollpointclick)
+
+#### **Added**
+- Added researchFromSelection which will take the highlighted text and continue the research within the context of the heading it was under.
+  - Simply highlight any text inside of the summary and use "/rs" or "/researchFromSelection"
+
+#### **Known Issues**
+  - researchFromSelection *may* misattribute the heading that the selection belongs to.
+
 [0.2.2] - 2022-12-23 (@dwertheimer)
 
 #### **Added**

@@ -87,14 +87,14 @@ export async function adjustPreferences() {
 }
 
 export function removeEntry(heading: string) {
-  logDebug(pluginJson, `\n\n----- Removing Entry -----\n${heading}\n\n---- ----- ---- \n\n`)
+  // logDebug(pluginJson, `\n\n----- Removing Entry -----\n${heading}\n\n---- ----- ---- \n\n`)
   const paraBeforeDelete = Editor.paragraphs.find((p) => p.content === heading)
   if (paraBeforeDelete) {
-    logDebug(pluginJson, `removeEntry heading in document: "${paraBeforeDelete.content}" lineIndex:${paraBeforeDelete.lineIndex}`)
+    // logDebug(pluginJson, `removeEntry heading in document: "${paraBeforeDelete.content}" lineIndex:${paraBeforeDelete.lineIndex}`)
     const contentRange = paraBeforeDelete.contentRange
     const characterBeforeParagraph = contentRange.start - 1 // back up one character
     removeContentUnderHeading(Editor, heading, false, false) // delete the paragraph
-    logDebug(pluginJson, `removeEntry removed para: ${heading}`)
+    // logDebug(pluginJson, `removeEntry removed para: ${heading}`)
     Editor.highlightByIndex(characterBeforeParagraph, 0) // scroll to where it was
   }
 }
@@ -113,26 +113,22 @@ export function scrollToEntry(_heading: string, _deleteItem?: ?string = null, fo
         : _heading
 
     const deleteItem = _deleteItem === 'true' ? true : false
-    // logDebug(pluginJson, `\n\n----- Scrolling to Entry -----\n${heading}\n\n${deleteItem}\n\n---- ----- ---- \n\n`)
-    logDebug(pluginJson, `\n\n----- Scrolling to Entry -----\nheading:"${heading}" deleteItem:${String(deleteItem)} foldHeading:${String(foldHeading)}\n`)
-    // Editor.paragraphs.forEach((p) => logDebug(pluginJson, `p.content = ${p.content} =${p.content.startsWith(heading)} && Editor.isFolded(p)=${Editor.isFolded(p)}`))
-    const selectedHeading = Editor.paragraphs.find((p) => p.content === heading || (p.content.startsWith(heading) && Editor.isFolded(p)))
+    // logDebug(pluginJson, `\n\n----- Scrolling to Entry -----\nheading:"${heading}" deleteItem:${String(deleteItem)} foldHeading:${String(foldHeading)}\n`)
+    const selectedHeading = Editor.paragraphs.find((p) => p.content === capitalizeFirstLetter(heading) || (p.content.startsWith(capitalizeFirstLetter(heading)) && Editor.isFolded(p)))
     if (selectedHeading) {
-      logDebug(pluginJson, `scrollToEntry found selectedHeading="${selectedHeading.content}" lineIndex=${selectedHeading.lineIndex}`)
+      // logDebug(pluginJson, `scrollToEntry found selectedHeading="${selectedHeading.content}" lineIndex=${selectedHeading.lineIndex}`)
       let firstCharacter
       const contentRange = selectedHeading.contentRange
       if (deleteItem) {
         firstCharacter = (contentRange?.start || 1) - 1 // back up one character
-        // logDebug(pluginJson, `\n\n----- ----- -----\n${firstCharacter}\n\n---- ----- ---- \n\n`)
-        // removeContentUnderHeading(Editor, heading, true, false)
         removeEntry(heading)
-        logDebug(pluginJson, `scrollToEntry after delete`)
+        // logDebug(pluginJson, `scrollToEntry after delete`)
       } else {
         firstCharacter = contentRange?.start || 0
         if (foldHeading === 'true' && !Editor.isFolded(selectedHeading)) Editor.toggleFolding(selectedHeading)
         if (foldHeading === 'false' && Editor.isFolded(selectedHeading)) Editor.toggleFolding(selectedHeading)
         if (foldHeading === 'toggle') {
-          logDebug(pluginJson, `scrollToEntry isFolded:${String(Editor.isFolded(selectedHeading))} `)
+          // logDebug(pluginJson, `scrollToEntry isFolded:${String(Editor.isFolded(selectedHeading))} `)
           Editor.toggleFolding(selectedHeading)
         }
       }
@@ -152,4 +148,8 @@ export async function retrieveResearchNotes() {
     items.push(item)
   }
   const selection = await CommandBar.showOptions(items, 'Research Notes')
+}
+
+export function capitalizeFirstLetter(string) {
+  return string[0].toUpperCase() + string.slice(1);
 }

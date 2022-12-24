@@ -34,15 +34,15 @@ const completionsComponent = 'completions'
 export async function createResearchDigSite(promptIn?: string | null = null) {
   const { researchDirectory } = DataStore.settings
   const subject = promptIn ?? (await CommandBar.showInput('Type in your subject..', 'Start Research'))
-  logDebug(pluginJson, `createResearchDigSite subject="${subject}" dir="${researchDirectory}" defaultExtension="${DataStore.defaultFileExtension}"`)
+  // logDebug(pluginJson, `createResearchDigSite subject="${subject}" dir="${researchDirectory}" defaultExtension="${DataStore.defaultFileExtension}"`)
   const filename = `${researchDirectory}/${subject}.${DataStore.defaultFileExtension || '.txt'}`
-  logDebug(pluginJson, `createResearchDigSite filename="${filename}" Now trying to open note by filename`)
+  // logDebug(pluginJson, `createResearchDigSite filename="${filename}" Now trying to open note by filename`)
   await Editor.openNoteByFilename(filename, false, 0, 0, false, true, `# ${subject} Research\n`)
-  logDebug(pluginJson, `createResearchDigSite opened Editor note by filename title is now:"${String(Editor.title)}" Editor.filename="${String(Editor.filename)}"`)
+  // logDebug(pluginJson, `createResearchDigSite opened Editor note by filename title is now:"${String(Editor.title)}" Editor.filename="${String(Editor.filename)}"`)
   if (Editor.title === `${subject} Research`) {
     await bulletsAI(subject)
   } else {
-    logDebug(pluginJson, `createResearchDigSite Wanted Editor.title to be "${subject} Research" but Editor.title is "${Editor.title || ''}"`)
+    // logDebug(pluginJson, `createResearchDigSite Wanted Editor.title to be "${subject} Research" but Editor.title is "${Editor.title || ''}"`)
   }
 }
 
@@ -77,7 +77,7 @@ export async function bulletsAI(
     let promptMain = ''
     let promptList = ''
     const state = await checkInitialState(promptIn, prevSubjectIn, initialSubject, isCustomRemix)
-    logDebug(pluginJson, `bulletsAI state=${state}`)
+    // logDebug(pluginJson, `bulletsAI state=${state}`)
     switch (state) {
       case 'initialQuery':
         initializeData(promptIn)
@@ -86,7 +86,7 @@ export async function bulletsAI(
         break
 
       case 'followedLink':
-        logDebug(pluginJson, `\n----\n-----bulletsAI-----\nFollowed Link\nLink: ${promptIn}\nPrevious Subject: ${prevSubjectIn}\n----\n\n${typeof useFullHistory}`)
+        // logDebug(pluginJson, `\n----\n-----bulletsAI-----\nFollowed Link\nLink: ${promptIn}\nPrevious Subject: ${prevSubjectIn}\n----\n\n${typeof useFullHistory}`)
         initializeData()
         updateClickedLinksJsonData(promptIn)
         promptMain = await generateSubjectSummaryPrompt(useFullHistory == 'true' ? fullHistoryText : promptIn, useFullHistory == 'true' ? '' : prevSubjectIn)
@@ -196,16 +196,14 @@ function updateBulletLinks(keyTerm?: string = '') {
   let prettyKeyTerm = ''
 
   const bulletsToUpdate = Editor.paragraphs.forEach((f) => {
-    // logDebug(pluginJson, `\n\n---- WHAT IS F ----\n\n ${f}\n\n`)
     if (f.type == 'list') {
       for (const c of loadedJSON['clickedLinks']) {
         const encodedLink = encodeURI(c)
-        logDebug(pluginJson, `\n\n---- WHAT IS F.CONTENT ----\n\n ${f.content}\n\n`)
 
         if (f.content.includes(`arg0=${encodedLink}`)) {
-          logDebug(pluginJson, `\n\n---- MATCHES C ----\n\n ${c}\n\n`)
+          // logDebug(pluginJson, `\n\n---- MATCHES C ----\n\n ${c}\n\n`)
           prettyKeyTerm = createPrettyOpenNoteLink(c, Editor.filename, true, c)
-          logDebug(pluginJson, `\n\n---- Pretty Key Term ----\n\n ${prettyKeyTerm}\n\n`)
+          // logDebug(pluginJson, `\n\n---- Pretty Key Term ----\n\n ${prettyKeyTerm}\n\n`)
           f.type = 'text'
           f.content = `### ${prettyKeyTerm}`
           Editor.updateParagraph(f)
@@ -221,9 +219,9 @@ async function parseResponse(request: Object | null, listRequest: Object | null,
     const responseText = request.choices[0].text.trim()
     const keyTermsList = listRequest.choices[0].text.split(',')
     const keyTerms = []
-    logDebug(pluginJson, `parseResponse Editor.title="${Editor.title}"`)
+    // logDebug(pluginJson, `parseResponse Editor.title="${Editor.title}"`)
     const jsonData = { ...DataStore.loadJSON(`Query Data/${Editor.title}/data.json`) }
-    clo(jsonData, 'parseResponse jsonData BEFORE')
+    // clo(jsonData, 'parseResponse jsonData BEFORE')
     for (const keyTerm of jsonData['unclickedLinks']) {
       keyTerms.push(keyTerm.trim())
     }
@@ -233,7 +231,7 @@ async function parseResponse(request: Object | null, listRequest: Object | null,
       }
     }
     jsonData['unclickedLinks'] = keyTerms
-    clo(jsonData, 'parseResponse jsonData AFTER')
+    // clo(jsonData, 'parseResponse jsonData AFTER')
     DataStore.saveJSON(jsonData, `Query Data/${Editor.title}/data.json`)
     // clo(subtitle, 'subtitle')
 
@@ -279,4 +277,13 @@ export async function explore(prevSubjectIn: string) {
   } else {
     await showMessage('No prompt entered. Please try again.')
   }
+}
+
+export async function researchFromSelection() {
+  const selectedText = Editor.selectedText
+  const matchedContent = Editor.paragraphs.find((p) => p.type === 'text' && p.content.includes(selectedText))
+
+  logDebug(pluginJson, `\n\n---- INFO -----\n\n${selectedText}\n${matchedContent}\n\n`)
+
+  await bulletsAI(selectedText, matchedContent.heading)
 }
