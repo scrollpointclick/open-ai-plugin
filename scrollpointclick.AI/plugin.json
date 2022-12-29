@@ -4,7 +4,7 @@
   "noteplan.minAppVersion": "3.4.0",
   "plugin.id": "scrollpointclick.AI",
   "plugin.name": "💡 AAI",
-  "plugin.version": "0.2.4",
+  "plugin.version": "0.2.5",
   "plugin.lastUpdateInfo": "Initial release",
   "plugin.description": "GPT integration for research, summarization, etc.",
   "plugin.author": "Aaron @scrollpointclick with a little encouragement from @dwertheimer",
@@ -96,7 +96,7 @@
       "name": "Create AI Images",
       "description": "Generate images with DALL-E @ OpenAI",
       "jsFunction": "createAIImages",
-      "hidden": true,
+      "hidden": false,
       "alias": [
       ],
       "arguments": []

@@ -27,7 +27,7 @@ import { formatSubtitle, formatBulletSummary, formatFurtherLink } from './suppor
  * TYPES
  */
 
-type DallERequestOptions = { prompt?: string, n?: number, size?: string, response_format?: string, user?: string }
+// export type DallERequestOptions = { prompt?: string, n?: number, size?: string, response_format?: string, user?: string }
 export type CompletionsRequest = { model: string, prompt?: string, max_tokens?: number, user?: string, suffix?: string, temperature?: string, top_p?: string, n?: number }
 type ResearchListResult = { initialQuery: string, currentQuery: string, selection?: string, options?: [string] }
 
@@ -37,7 +37,7 @@ type ResearchListResult = { initialQuery: string, currentQuery: string, selectio
 
 const baseURL = 'https://api.openai.com/v1'
 const modelsComponent = 'models'
-const imagesGenerationComponent = 'images/generations'
+// const imagesGenerationComponent = 'images/generations'
 const completionsComponent = 'completions'
 
 const availableModels = ['text-davinci-003', 'text-curie-001', 'text-babbage-001', 'text-ada-001']
@@ -202,38 +202,6 @@ export async function testConnection(model: string | null = null) {
 /*
  * PLUGIN ENTRYPOINT
  */
-
-/**
- * Create DALL-E images
- * Plugin entrypoint for command: "/Create AI Images"
- * Options:
- * @param {string} prompt - A text description of the prompt for the AI to interpret.
- * @param {number} - n - The number of images to generate. Must be between 1 and 10
- * @param {size} size - The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024.
- * @param {string} response_format - The format in which the generated images are returned. Must be one of url or b64_json
- * @param {string} user - A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
- */
-export async function createAIImages(promptIn: string | null = '', nIn: number = 1, sizeIn: string = '1024x1024', response_formatIn: string = 'url', userIn: string | null = null) {
-  try {
-    logDebug(pluginJson, `createImages running with prompt:${String(promptIn)} ${String(nIn)} ${sizeIn} ${response_formatIn} ${String(userIn)}`)
-
-    // get an image
-    const start = new Date()
-    const { prompt, n } = await getPromptAndNumberOfResults(promptIn, nIn)
-    const reqBody: DallERequestOptions = { prompt, n: n || 1, size: sizeIn || '1024x1024', response_format: response_formatIn }
-    if (userIn) reqBody.user = userIn
-    const request = (await makeRequest(imagesGenerationComponent, 'POST', reqBody))?.data
-    const elapsed = timer(start)
-    clo(request, `testConnection imageRequest result`)
-    if (request) {
-      const msg = `Call to DALL-E took ${elapsed}. ${request.length} results for "${prompt}":`
-      Editor.insertTextAtCursor(msg)
-      request.forEach((r, i) => Editor.insertTextAtCursor(`[Result${i}](${r.url})`))
-    }
-  } catch (error) {
-    logError(pluginJson, JSP(error))
-  }
-}
 
 /**
  * Use the note as a prompt for GPT-3.

@@ -4,6 +4,15 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.2.5] - 2022-12-29 (@scrollpointclick)
+
+#### **Changed**
+- Moved the createAIImages function to its own file imageAI.js
+
+
+#### **Known Issues**
+- Not properly calling the function that gathers both the prompt and the n amount for the number of images.
+
 [0.2.4] - 2022-12-28 (@scrollpointclick)
 
 #### **Added**
