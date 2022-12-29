@@ -4,6 +4,15 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.2.4] - 2022-12-28 (@scrollpointclick)
+
+#### **Added**
+- createOuterLink function formats the currently selected text to become an x-callback url link to a matching note.
+
+#### **Changed**
+- If text is selected, calling the /dig command will auto-populate the input prompt with the selected text. If 'Enter' is pressed without typing anything else, the selected text will generate a new research page and the selected text will become a link to it.
+
+
 [0.2.3] - 2022-12-23 (@scrollpointclick)
 
 #### **Added**

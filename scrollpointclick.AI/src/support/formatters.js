@@ -7,6 +7,14 @@ import { removeContentUnderHeading } from '@helpers/NPParagraph'
 
 const pluginJson = `scrollpointclick.AI/helpers`
 
+/**
+ * Formats the subtitle for the output prompt.
+ * @param {string} subject - The core search query instantiated by the user.
+ * @param {string?} prevSubject - The previous search query instantiated by the user.
+ * @param {string} fullHistory - The entire search query from the first to the current search request. Includes all links.
+ * @param {boolean} useFullHistory - Indicates whether or not the subtitle should use part or all of the history.
+ * @param {string} fullHistoryText - The entire search query from the first to the current search request. Pure text only.
+ */
 export function formatSubtitle(subject: string, prevSubject?: string = '', fullHistory: string, useFullHistory: boolean, fullHistoryText: string) {
   let fullHistoryTextOut = ''
   let backLink = ''
@@ -41,8 +49,11 @@ export function formatSubtitle(subject: string, prevSubject?: string = '', fullH
 
 /**
  * Formats the key terms part of the summary response
- * @params {[string]} keyTerms - List of key terms
- * Currently under construction.
+ * @param {[string]} keyTerms - List of key terms
+ * @param {string} subject - The core search query instantiated by the user.
+ * @param {string?} remixText - The new text input by the user to be used contextually with the subject.
+ * @param {string} subtitle - The readable text that indicates the core elements of the search.
+ * @param {string} fullHistoryText - The entire search query from the first to the current search request. Pure text only.
  */
 export async function formatKeyTermsForSummary(keyTerms: [string], subject: string, remixText?: string = '', subtitle: string = '', fullHistoryText: string) {
   // logDebug(pluginJson, `\n\nformatBulletSummary\nSubject: ${subject}\nResponse: ${summary}\nLink: ${link})}`)
@@ -53,8 +64,8 @@ export async function formatKeyTermsForSummary(keyTerms: [string], subject: stri
   for (const keyTerm of keyTerms) {
     if (jsonData['clickedLinks'].includes(keyTerm)) {
     } else {
-      prettyKeyTerm = createPrettyRunPluginLink(`${keyTerm.trim()}`, 'scrollpointclick.AI', 'Bullets AI', [
-        keyTerm.trim(),
+      prettyKeyTerm = createPrettyRunPluginLink(`${capitalizeFirstLetter(keyTerm.trim())}`, 'scrollpointclick.AI', 'Bullets AI', [
+        capitalizeFirstLetter(keyTerm.trim()),
         `${subject}`,
         jsonData['initialSubject'],
         false,

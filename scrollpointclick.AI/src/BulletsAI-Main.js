@@ -4,7 +4,7 @@ import { type JSONData } from './support/AIFlowTypes'
 import { makeRequest } from './NPAI'
 import { generateSubjectSummaryPrompt, generateKeyTermsPrompt, generateExplorationPrompt } from './support/prompts'
 import { formatSubtitle, formatKeyTermsForSummary, formatBulletSummary, formatFurtherLink, formatModelInformation, formatTableOfContents } from './support/formatters'
-import { scrollToEntry } from './support/helpers'
+import { capitalizeFirstLetter, scrollToEntry } from './support/helpers'
 import { removeContentUnderHeading } from '@helpers/NPParagraph'
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
@@ -31,9 +31,15 @@ const completionsComponent = 'completions'
  * Prompt for new research tunnel
  *
  */
+
 export async function createResearchDigSite(promptIn?: string | null = null) {
   const { researchDirectory } = DataStore.settings
-  const subject = promptIn ?? (await CommandBar.showInput('Type in your subject..', 'Start Research'))
+  let subject = ''
+  subject = promptIn ?? (await CommandBar.showInput((Editor.selectedText) ? `${capitalizeFirstLetter(Editor.selectedText)}`: 'Type in your subject..', 'Start Research'))
+  if (subject == '' && Editor.selectedText) {
+    subject = capitalizeFirstLetter(Editor.selectedText)
+    createOuterLink()
+  } 
   // logDebug(pluginJson, `createResearchDigSite subject="${subject}" dir="${researchDirectory}" defaultExtension="${DataStore.defaultFileExtension}"`)
   const filename = `${researchDirectory}/${subject}.${DataStore.defaultFileExtension || '.txt'}`
   // logDebug(pluginJson, `createResearchDigSite filename="${filename}" Now trying to open note by filename`)
@@ -44,6 +50,14 @@ export async function createResearchDigSite(promptIn?: string | null = null) {
   } else {
     // logDebug(pluginJson, `createResearchDigSite Wanted Editor.title to be "${subject} Research" but Editor.title is "${Editor.title || ''}"`)
   }
+}
+
+export async function createOuterLink() {
+  const settings = DataStore.settings
+  const linkTitle = Editor.selectedText
+  const link = `${settings['researchDirectory']}%2F${encodeURI(linkTitle)}.${DataStore.defaultFileExtension || '.txt'}`
+  const outerLink = createPrettyOpenNoteLink(linkTitle, link, true, capitalizeFirstLetter(linkTitle))
+  Editor.replaceSelectionWithText(outerLink)
 }
 
 export async function createRemix() {
