@@ -299,12 +299,28 @@ export async function researchFromSelection() {
 
 export async function moveNoteToResearchCollection() {
   const { researchDirectory } = DataStore.settings
-  const currentNote = Editor.note
   const researchFolders = DataStore.folders.filter((p) => p.includes('Research/'))
-  // logDebug(pluginJson, researchFolders)
+  let newLocation = ''
+  const selectedSidebarFolder = NotePlan.selectedSidebarFolder
   const selectedDirectory = await CommandBar.showInput('Which directory?', 'Choose One')
-  const newPath = `${researchDirectory}/${selectedDirectory}`
-  const newLocation = `${newPath}/${currentNote.title}.${DataStore.defaultFileExtension || '.txt'}`
+  const newPath = (selectedSidebarFolder) ? `${selectedSidebarFolder}/${selectedDirectory}` : `${researchDirectory}/${selectedDirectory}`
+  logDebug(pluginJson, selectedSidebarFolder)
+  logDebug(pluginJson, newPath)
+  if (!selectedSidebarFolder) {
+    const currentNote = Editor.note
+    logDebug(pluginJson, 'No folder selected')
+    newLocation = `${newPath}/${currentNote.title}.${DataStore.defaultFileExtension || '.txt'}`
+    logDebug(pluginJson, newLocation)
+  } else {
+    logDebug(pluginJson, 'Folder selected')
+    newLocation = `${newPath}`
+    logDebug(pluginJson, newLocation)
+  }
+
+  
+  
+  
+  
   if (!researchFolders.includes(selectedDirectory)) {
     logDebug(pluginJson, 'Directory does not yet exist.')
     await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory, false)
