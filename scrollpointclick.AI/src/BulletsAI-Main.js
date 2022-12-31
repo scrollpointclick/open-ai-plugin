@@ -7,7 +7,7 @@ import { formatSubtitle, formatKeyTermsForSummary, formatBulletSummary, formatFu
 import { capitalizeFirstLetter, scrollToEntry } from './support/helpers'
 // import { removeContentUnderHeading } from '@helpers/NPParagraph'
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
-import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
+import { escapeRegex, createPrettyOpenNoteLink } from '@helpers/general'
 import { showMessage } from '@helpers/userInput'
 
 // const availableModels = ['text-davinci-003', 'text-curie-001', 'text-babbage-001', 'text-ada-001']
@@ -24,20 +24,20 @@ export async function createResearchDigSite(promptIn?: string | null = null) {
   const options = [
     {
       label: 'Default',
-      value: 'Default'
+      value: 'Default',
     },
     {
       label: 'Custom',
-      value: 'Custom'
-    }
+      value: 'Custom',
+    },
   ]
   let subject = ''
-  subject = promptIn ?? (await CommandBar.showInput((Editor.selectedText) ? `${capitalizeFirstLetter(Editor.selectedText)}`: 'Type in your subject..', 'Start Research'))
+  subject = promptIn ?? (await CommandBar.showInput(Editor.selectedText ? `${capitalizeFirstLetter(Editor.selectedText)}` : 'Type in your subject..', 'Start Research'))
   if (subject == '' && Editor.selectedText) {
     subject = capitalizeFirstLetter(Editor.selectedText)
     // const useSelectedFolder = await chooseOption('g', options)
     createOuterLink()
-  } 
+  }
   // logDebug(pluginJson, `createResearchDigSite subject="${subject}" dir="${researchDirectory}" defaultExtension="${DataStore.defaultFileExtension}"`)
   const filename = `${researchDirectory}/${subject}.${DataStore.defaultFileExtension || '.txt'}`
   // logDebug(pluginJson, `createResearchDigSite filename="${filename}" Now trying to open note by filename`)
@@ -298,23 +298,46 @@ export async function researchFromSelection() {
 }
 
 export async function moveNoteToResearchCollection() {
-  const { researchDirectory } = DataStore.settings
-  const currentNote = Editor.note
-  const researchFolders = DataStore.folders.filter((p) => p.includes('Research/'))
-  // logDebug(pluginJson, researchFolders)
-  const selectedDirectory = await CommandBar.showInput('Which directory?', 'Choose One')
-  const newPath = `${researchDirectory}/${selectedDirectory}`
-  const newLocation = `${newPath}/${currentNote.title}.${DataStore.defaultFileExtension || '.txt'}`
-  if (!researchFolders.includes(selectedDirectory)) {
-    logDebug(pluginJson, 'Directory does not yet exist.')
-    await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory, false)
-  } else {
-    await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory)
+  try {
+    const { researchDirectory } = DataStore.settings
+    const currentNote = Editor.note
+    const oldFilenameEnc = encodeURIComponent(currentNote?.filename || '')
+    logDebug(
+      pluginJson,
+      `moveNoteToResearchCollection oldFilenameEnc=${oldFilenameEnc} Editor.title=${Editor?.title || ''} Editor.filename=${Editor.filename} Editor.note.title=${
+        Editor?.note?.title || ''
+      }`,
+    )
+    const researchFolders = DataStore.folders.filter((p) => p.includes(`${researchDirectory}/`))
+    // logDebug(pluginJson, researchFolders)
+    const selectedDirectory = await CommandBar.showInput('Which directory?', 'Choose One') // you say choose, but this is a text input?
+    const newPath = `${researchDirectory}/${selectedDirectory}`
+    const newLocation = `${newPath}/${currentNote?.title || ''}.${DataStore.defaultFileExtension || '.txt'}`
+    // if (!researchFolders.includes(selectedDirectory)) {
+    //   logDebug(pluginJson, 'Directory does not yet exist.')
+    //   await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory, false)
+    // } else {
+    //   await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory)
+    // }
+    if (currentNote) {
+      const newFilename = await currentNote.rename(newLocation) // after this move, the note is not active anymore
+      DataStore.updateCache(currentNote)
+      await Editor.openNoteByFilename(newFilename)
+      const newFilenameEnc = encodeURIComponent(newFilename)
+      logDebug(pluginJson, `moveNoteToResearchCollection newFilenameEnc=${newFilenameEnc}`)
+      const newNote = await DataStore.noteByFilename(newFilename, 'Notes')
+      if (newNote?.content) {
+        newNote.content = newNote.content.replace(new RegExp(escapeRegex(oldFilenameEnc), 'g'), newFilenameEnc)
+      }
+    } else {
+      logError(pluginJson, 'currentNote was false, cannot finish the move.')
+    }
+  } catch (error) {
+    logError(pluginJson, JSP(error))
   }
-  currentNote.rename(newLocation)
 }
 
-export async function updateResearchCollectionTableOfContents(newPath: string, originalNoteTitle: string, noteToAdd: NoteObject, selectedDirectory: string, exists: bool = true) {
+export async function updateResearchCollectionTableOfContents(newPath: string, originalNoteTitle: string, noteToAdd: TNote, selectedDirectory: string, exists: boolean = true) {
   const noteTableOfContents = noteToAdd.paragraphs.filter((p) => p.heading.includes('Table of Contents'))
   const formattedOriginalNoteTitle = selectedDirectory.replace(' Research', '')
   const subtitleLinks = noteToAdd.paragraphs.filter((p) => p.type == 'heading' && p.content.includes('[') && !p.content.includes('Table of Contents'))
