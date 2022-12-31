@@ -321,13 +321,15 @@ export async function moveNoteToResearchCollection() {
     // }
     if (currentNote) {
       const newFilename = await currentNote.rename(newLocation) // after this move, the note is not active anymore
-      DataStore.updateCache(currentNote)
+      const updated = DataStore.updateCache(currentNote)
       await Editor.openNoteByFilename(newFilename)
       const newFilenameEnc = encodeURIComponent(newFilename)
       logDebug(pluginJson, `moveNoteToResearchCollection newFilenameEnc=${newFilenameEnc}`)
       const newNote = await DataStore.noteByFilename(newFilename, 'Notes')
+      const newNotecontent = newNote?.content
       if (newNote?.content) {
-        newNote.content = newNote.content.replace(new RegExp(escapeRegex(oldFilenameEnc), 'g'), newFilenameEnc)
+        newNote.content = newNotecontent.replace(new RegExp(escapeRegex(oldFilenameEnc), 'g'), newFilenameEnc)
+        logDebug(pluginJson, `moveNoteToResearchCollection replaced:${oldFilenameEnc} with: ${newFilenameEnc}`)
       }
     } else {
       logError(pluginJson, 'currentNote was false, cannot finish the move.')
