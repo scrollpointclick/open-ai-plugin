@@ -5,6 +5,7 @@ import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
 import { removeContentUnderHeading } from '@helpers/NPParagraph'
 import { getProjectNotesInFolder } from '@helpers/note'
+import { chooseOption, showMessage, showMessageYesNo, getInput } from '@helpers/userInput'
 
 export const modelOptions = {
   'text-davinci-003': 0.02,
@@ -82,8 +83,31 @@ export async function rerollSingleKeyTerm(promptIn: string, exclusions: string) 
  * @returns {string|null} the model ID chosen
  */
 export async function adjustPreferences() {
-  const settings = await DataStore.settings
-  logDebug(pluginJson, `Settings:\n\n${settings}\n`)
+  
+  logDebug(pluginJson, `${noteAISettings}`)
+  // let availablePreferences = []
+  let prefs = getPreferences()
+
+  // const availablePreferences = noteAISettings.getOwnPropertyNames.map((option) => ({ label: option, value: option }))
+  // const selectedPreference = await CommandBar.showOptions(availablePreferences, 'Select Preference')
+  // const filteredModels = noteAISettings.filter((m) => noteAISettings.hasOwnProperty(m.id))
+  clo(prefs, 'Mapped options')
+  const selectedPreference = await chooseOption('Select Preference', prefs)
+  
+
+  let max_tokens = await CommandBar.showInput(`Set max tokens`, `Current: ${noteAISettings['max_tokens']}`)
+  noteAISettings['max_tokens'] = Number(max_tokens)
+  DataStore.settings = noteAISettings
+}
+
+function getPreferences() {
+  let noteAISettings = DataStore.settings
+  for (var key in noteAISettings) {
+    // logDebug(pluginJson, `${key}`)
+    const info = { label: `${noteAISettings[key]}`, value: key }
+    availablePreferences.push(info)
+  }
+  return noteAISettings
 }
 
 export function removeEntry(heading: string) {
@@ -139,17 +163,17 @@ export function scrollToEntry(_heading: string, _deleteItem?: ?string = null, fo
   }
 }
 
-export async function retrieveResearchNotes() {
-  // FIXME: This doesn't do anything. Figure out why.
-
-  const notes = getProjectNotesInFolder('Research')
-  items = []
-  for (var item in notes) {
-    items.push(item)
-  }
-  const selection = await CommandBar.showOptions(items, 'Research Notes')
-}
-
 export function capitalizeFirstLetter(string) {
   return string[0].toUpperCase() + string.slice(1);
+}
+
+export async function checkModel() {
+  const { defaultModel } = DataStore.settings
+  let chosenModel = defaultModel
+    if (defaultModel === 'Choose Model') {
+      logDebug(pluginJson, `noteToPrompt: Choosing Model...`)
+      chosenModel = (await chooseModel()) || ''
+      logDebug(pluginJson, `noteToPrompt: ${chosenModel} selected`)
+    }
+  return chosenModel
 }

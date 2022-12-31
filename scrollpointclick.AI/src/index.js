@@ -31,8 +31,8 @@ export {
   updateREADME,
   noteToPrompt,
 } from './NPAI' // add one of these for every command specifified in plugin.json (the function could be in any file as long as it's exported)
-export { bulletsAI, createResearchDigSite, remixQuery, explore, researchFromSelection } from './BulletsAI-Main'
-export { adjustPreferences, scrollToEntry, retrieveResearchNotes } from './support/helpers'
+export { bulletsAI, createResearchDigSite, remixQuery, explore, researchFromSelection, moveNoteToResearchCollection } from './BulletsAI-Main'
+export { adjustPreferences, scrollToEntry } from './support/helpers'
 export { createAIImages } from './imageAI'
 
 // import './support/fetchOverrides'

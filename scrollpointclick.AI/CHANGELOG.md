@@ -4,6 +4,17 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.2.6] - 2022-12-30 (@scrollpointclick)
+
+#### **Added**
+- checkModel function added to remove ~50 lines of repeated code.
+- moveNoteToResearchCollection functionality added
+  - Moves the current note to a subdirectory inside the Research folder.
+  - Creates top level Table of Contents for folder.
+
+#### **Known Issues**
+- Using the moveNoteToResearchCollection function currently breaks backlinks inside of subtitles. Currently working on a fix.
+
 [0.2.5] - 2022-12-29 (@scrollpointclick)
 
 #### **Changed**

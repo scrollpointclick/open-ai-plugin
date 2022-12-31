@@ -5,27 +5,14 @@ import { makeRequest } from './NPAI'
 import { generateSubjectSummaryPrompt, generateKeyTermsPrompt, generateExplorationPrompt } from './support/prompts'
 import { formatSubtitle, formatKeyTermsForSummary, formatBulletSummary, formatFurtherLink, formatModelInformation, formatTableOfContents } from './support/formatters'
 import { capitalizeFirstLetter, scrollToEntry } from './support/helpers'
-import { removeContentUnderHeading } from '@helpers/NPParagraph'
+// import { removeContentUnderHeading } from '@helpers/NPParagraph'
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
 import { showMessage } from '@helpers/userInput'
 
-const availableModels = ['text-davinci-003', 'text-curie-001', 'text-babbage-001', 'text-ada-001']
+// const availableModels = ['text-davinci-003', 'text-curie-001', 'text-babbage-001', 'text-ada-001']
 type CompletionsRequest = { model: string, prompt?: string, max_tokens?: number, user?: string, suffix?: string, temperature?: string, top_p?: string, n?: number }
 const completionsComponent = 'completions'
-
-/* ACTION PLAN
-// Get Input Text
-// Generate 3 prompts { promptMain, !promptLink!, promptList } -- Actually just the two
-// Perform queries to API for each prompt
-// Build Summary
-    // Format Title
-    // Format Subtitle
-        // Generate backlinks for each existing summary
-    // Format 'Going Further?' Links
-    // Build Final Output
-// Check all bullets for matches with pre-existing bullets
-*/
 
 /**
  * Prompt for new research tunnel
@@ -34,10 +21,21 @@ const completionsComponent = 'completions'
 
 export async function createResearchDigSite(promptIn?: string | null = null) {
   const { researchDirectory } = DataStore.settings
+  const options = [
+    {
+      label: 'Default',
+      value: 'Default'
+    },
+    {
+      label: 'Custom',
+      value: 'Custom'
+    }
+  ]
   let subject = ''
   subject = promptIn ?? (await CommandBar.showInput((Editor.selectedText) ? `${capitalizeFirstLetter(Editor.selectedText)}`: 'Type in your subject..', 'Start Research'))
   if (subject == '' && Editor.selectedText) {
     subject = capitalizeFirstLetter(Editor.selectedText)
+    // const useSelectedFolder = await chooseOption('g', options)
     createOuterLink()
   } 
   // logDebug(pluginJson, `createResearchDigSite subject="${subject}" dir="${researchDirectory}" defaultExtension="${DataStore.defaultFileExtension}"`)
@@ -282,9 +280,6 @@ export async function remixQuery(subject: string) {
 }
 
 export async function explore(prevSubjectIn: string) {
-  // Explore - Create a new prompt that carries over an entirely new query but is still related.
-
-  // const selectedHeading = await CommandBar.showInput('Select unique heading.', 'OK') // Currently Disabled.
   const selectedSubtitle = await CommandBar.showInput('Type in your prompt.', 'OK')
   if (selectedSubtitle?.length) {
     await bulletsAI(selectedSubtitle, prevSubjectIn)
@@ -300,4 +295,57 @@ export async function researchFromSelection() {
   logDebug(pluginJson, `\n\n---- INFO -----\n\n${selectedText}\n${matchedContent}\n\n`)
 
   await bulletsAI(selectedText, matchedContent.heading)
+}
+
+export async function moveNoteToResearchCollection() {
+  const { researchDirectory } = DataStore.settings
+  const currentNote = Editor.note
+  const researchFolders = DataStore.folders.filter((p) => p.includes('Research/'))
+  // logDebug(pluginJson, researchFolders)
+  const selectedDirectory = await CommandBar.showInput('Which directory?', 'Choose One')
+  const newPath = `${researchDirectory}/${selectedDirectory}`
+  const newLocation = `${newPath}/${currentNote.title}.${DataStore.defaultFileExtension || '.txt'}`
+  if (!researchFolders.includes(selectedDirectory)) {
+    logDebug(pluginJson, 'Directory does not yet exist.')
+    await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory, false)
+  } else {
+    await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory)
+  }
+  currentNote.rename(newLocation)
+}
+
+export async function updateResearchCollectionTableOfContents(newPath: string, originalNoteTitle: string, noteToAdd: NoteObject, selectedDirectory: string, exists: bool = true) {
+  const noteTableOfContents = noteToAdd.paragraphs.filter((p) => p.heading.includes('Table of Contents'))
+  const formattedOriginalNoteTitle = selectedDirectory.replace(' Research', '')
+  const subtitleLinks = noteToAdd.paragraphs.filter((p) => p.type == 'heading' && p.content.includes('[') && !p.content.includes('Table of Contents'))
+  const tocFileName = `${newPath}/Table of Contents.${DataStore.defaultFileExtension || '.txt'}`
+  await Editor.openNoteByFilename(tocFileName, false, 0, 0, false, true)
+  if (!Editor.content.includes('Table of Contents')) {
+    Editor.insertTextAtCharacterIndex(`- Table of Contents`, 2)
+  }
+  Editor.appendParagraph(`### ${originalNoteTitle}`, 'heading')
+  for (const para of noteTableOfContents) {
+    if (!para.content.includes('---') && para.content != '') {
+      const newLink = await updatePrettyLink(para.content, originalNoteTitle, newPath)
+      para.content = newLink
+      noteToAdd.updateParagraph(para)
+      Editor.appendParagraph(newLink, 'list')
+    }
+  }
+  // Need to figure out how to fix backlinks in the subtitles.
+  // for (const para of subtitleLinks) {
+  //   // logDebug(pluginJson, para.content)
+  //     const newLink = await updatePrettyLink(para.content, originalNoteTitle, newPath)
+  //     para.content = newLink
+  //     noteToAdd.updateParagraph(para)
+  //     Editor.appendParagraph(newLink, 'list')
+  // }
+}
+
+export async function updatePrettyLink(link: string, originalNoteTitle: string, newPath: string) {
+  // logDebug(pluginJson, link)
+  let heading = link.split(']')[0].slice(1)
+  const newLink = `${newPath}/${originalNoteTitle}.${DataStore.defaultFileExtension || '.txt'}`
+  logDebug(pluginJson, heading)
+  return createPrettyOpenNoteLink(heading, newLink, true, capitalizeFirstLetter(heading))
 }

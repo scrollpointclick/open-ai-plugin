@@ -8,7 +8,7 @@
 
 import pluginJson from '../plugin.json'
 // import { bulletsAI } from './BulletsAI-Main'
-import { calculateCost, modelOptions, generateREADMECommands } from './support/helpers' // FIXME: Is there something better than this growth?
+import { calculateCost, modelOptions, generateREADMECommands, checkModel } from './support/helpers' // FIXME: Is there something better than this growth?
 import { chooseOption, showMessage, showMessageYesNo, getInput } from '@helpers/userInput'
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { intro, learningOptions, openAILearningWizard, modelsInformation, externalReading } from './support/introwizard'
@@ -217,13 +217,7 @@ export async function noteToPrompt(promptIn: string | null = '', userIn: string 
 
     const start = new Date()
     const prompt = Editor.content
-
-    let chosenModel = defaultModel
-    if (defaultModel === 'Choose Model') {
-      logDebug(pluginJson, `noteToPrompt: Choosing Model...`)
-      chosenModel = (await chooseModel()) || ''
-      logDebug(pluginJson, `noteToPrompt: ${chosenModel} selected`)
-    }
+    let chosenModel = checkModel()
     const reqBody: CompletionsRequest = { prompt, model: chosenModel, max_tokens: max_tokens }
     if (userIn) reqBody.user = userIn
     const request = await makeRequest(completionsComponent, 'POST', reqBody)
@@ -259,12 +253,7 @@ export async function createResearchRequest(promptIn: string | null = null, nIn:
     const { n } = results
     prompt = generateResearchPrompt(prompt, n)
 
-    let chosenModel = defaultModel
-    if (defaultModel === 'Choose Model') {
-      logDebug(pluginJson, `summarizeNote: Choosing Model...`)
-      chosenModel = (await chooseModel()) || ''
-      logDebug(pluginJson, `summarizeNote: ${chosenModel} selected`)
-    }
+    let chosenModel = checkModel()
     if (prompt.length && chosenModel.length) {
       const reqBody: CompletionsRequest = { prompt, model: chosenModel, max_tokens: max_tokens }
       const request = await makeRequest(completionsComponent, 'POST', reqBody)
@@ -279,15 +268,7 @@ export async function createResearchRequest(promptIn: string | null = null, nIn:
           const stats = `### **Stats**\n**Time to complete:** ${time}\n**Model:** ${chosenModel}\n**Total Tokens:** ${tokens}`
           content += stats
         }
-        const filename = DataStore.newNoteWithContent(content, researchDirectory) //newNoteWithContent returns the filename created
-        // you probably don't need any of this
-        // if ( promptIn ) {
-        //   const noteName = promptIn
-        // } else {
-        //   const noteName = `${prompt}`
-        // }
-        // logDebug(pluginJson, `noteName is set to ${noteName}`)
-        // Editor.openNoteByTitleCaseInsensitive(noteName)
+        const filename = DataStore.newNoteWithContent(content, researchDirectory) 
         await Editor.openNoteByFilename(filename)
       }
     }
@@ -328,13 +309,7 @@ export async function createResearchListRequest(promptIn: string | null, nIn: nu
 
       prompt = generateResearchListRequest(prompt)
 
-      let chosenModel = defaultModel
-      if (defaultModel === 'Choose Model') {
-        logDebug(pluginJson, `createResearchListRequest: Choosing Model...`)
-        chosenModel = 'text-davinci-003'
-        logDebug(pluginJson, `createResearchListRequest: ${chosenModel} selected`)
-      }
-      // logDebug(pluginJson, `createResearchListRequest: ${currentQuery} is the current query.`)
+      let chosenModel = checkModel()
       const reqBody: CompletionsRequest = { prompt, model: chosenModel, max_tokens: max_tokens, n: initialQuery.n }
       // clo(`response: `, reqBody)
       const request = await makeRequest(completionsComponent, 'POST', reqBody)
@@ -355,16 +330,6 @@ export async function createResearchListRequest(promptIn: string | null, nIn: nu
 
         const selection = await chooseOption(jsonData.subject, keyTerms)
         clo(selection, `jsonParse() selection result`)
-
-        // if (selection != jsonData.summary) {
-        //   const currentPage = {
-        //     'selection': selection,
-        //     'inReferenceTo': currentQuery,
-        //     'relatedTerms': keyTerms
-        //   }
-        //   history['pages'].push(currentPage)
-        //   clo(history, 'History')
-        // }
       }
     }
   } catch (error) {
@@ -386,11 +351,7 @@ export async function createQuickSearch(promptIn: string | null = null, userIn: 
     const text = await CommandBar.showInput('Quick Search', 'Use GPT-3 to get a summary of your query.')
     const prompt = generateQuickSearchPrompt(text)
 
-    let chosenModel = defaultModel
-    if (defaultModel === 'Choose Model') {
-      chosenModel = await 'text-davinci-003'
-      logDebug(pluginJson, `createQuickSearch: Defaulting to ${chosenModel}.`)
-    }
+    let chosenModel = checkModel()
     const reqBody: CompletionsRequest = { prompt, model: chosenModel, max_tokens: max_tokens }
     const request = await makeRequest(completionsComponent, 'POST', reqBody)
     const elapsedTimeStr = timer(start)
@@ -433,12 +394,7 @@ export async function summarizeNote(promptIn: string | null = null, userIn: stri
     const text = Editor.content ?? ''
     const prompt = generateSummaryRequest(text)
 
-    let chosenModel = defaultModel
-    if (defaultModel === 'Choose Model') {
-      logDebug(pluginJson, `summarizeNote: Choosing Model...`)
-      chosenModel = await chooseModel()
-      logDebug(pluginJson, `summarizeNote: ${String(chosenModel)} selected`)
-    }
+    let chosenModel = checkModel()
     if (chosenModel) {
       const reqBody: CompletionsRequest = { prompt, model: chosenModel, max_tokens: max_tokens }
       const request = await makeRequest(completionsComponent, 'POST', reqBody)
@@ -472,12 +428,7 @@ export async function summarizeSelection(promptIn: string | null = null, userIn:
     const text = Editor.selectedText
     const prompt = generateSummaryRequest(text)
 
-    let chosenModel = defaultModel
-    if (defaultModel == 'Choose Model') {
-      logDebug(pluginJson, `summarizeNote: Choosing Model...`)
-      chosenModel = await chooseModel()
-      logDebug(pluginJson, `summarizeNote: ${String(chosenModel)} selected`)
-    }
+    let chosenModel = checkModel()
     if (chooseModel?.length) {
       const reqBody: CompletionsRequest = { prompt, model: chosenModel, max_tokens: max_tokens }
       const request = await makeRequest(completionsComponent, 'POST', reqBody)

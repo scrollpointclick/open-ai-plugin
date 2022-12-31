@@ -4,8 +4,8 @@
   "noteplan.minAppVersion": "3.4.0",
   "plugin.id": "scrollpointclick.AI",
   "plugin.name": "💡 AAI",
-  "plugin.version": "0.2.5",
-  "plugin.lastUpdateInfo": "Initial release",
+  "plugin.version": "0.2.6",
+  "plugin.lastUpdateInfo": "Move to Research Subdirectory functionality added.",
   "plugin.description": "GPT integration for research, summarization, etc.",
   "plugin.author": "Aaron @scrollpointclick with a little encouragement from @dwertheimer",
   "plugin.dependencies": [],
@@ -56,7 +56,7 @@
       "name": "Adjust Preferences",
       "description": "Adjust plugin preferences",
       "jsFunction": "adjustPreferences",
-      "hidden": true,
+      "hidden": false,
       "alias": [
         "apref"
       ],
@@ -92,6 +92,17 @@
       ],
       "arguments": []
     }, 
+    {
+      "name": "Move Note to Research Collection",
+      "description": "Move the current note to Research collection.",
+      "jsFunction": "moveNoteToResearchCollection",
+      "hidden": false,
+      "alias": [
+        "mvr",
+        "movere"
+      ],
+      "arguments": []
+    },
     {
       "name": "Create AI Images",
       "description": "Generate images with DALL-E @ OpenAI",

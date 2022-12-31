@@ -1,6 +1,7 @@
 import { getPromptAndNumberOfResults, makeRequest } from "./NPAI"
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 
+
 const pluginJson = `scrollpointclick.AI/helpers`
 const imagesGenerationComponent = 'images/generations'
 type DallERequestOptions = { prompt?: string, n?: number, size?: string, response_format?: string, user?: string }
