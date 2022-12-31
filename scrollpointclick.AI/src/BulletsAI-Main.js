@@ -320,16 +320,19 @@ export async function moveNoteToResearchCollection() {
     //   await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory)
     // }
     if (currentNote) {
-      const newFilename = await currentNote.rename(newLocation) // after this move, the note is not active anymore
-      const updated = DataStore.updateCache(currentNote)
-      await Editor.openNoteByFilename(newFilename)
-      const newFilenameEnc = encodeURIComponent(newFilename)
-      logDebug(pluginJson, `moveNoteToResearchCollection newFilenameEnc=${newFilenameEnc}`)
-      const newNote = await DataStore.noteByFilename(newFilename, 'Notes')
-      const newNotecontent = newNote?.content
-      if (newNote?.content) {
-        newNote.content = newNotecontent.replace(new RegExp(escapeRegex(oldFilenameEnc), 'g'), newFilenameEnc)
-        logDebug(pluginJson, `moveNoteToResearchCollection replaced:${oldFilenameEnc} with: ${newFilenameEnc}`)
+      // const newFilename = await currentNote.rename(newLocation) // after this move, the note is not active anymore
+      const newFilename = DataStore.moveNote(currentNote.filename, newPath)
+      // const updated = DataStore.updateCache(currentNote)
+      if (newFilename) {
+        await Editor.openNoteByFilename(newFilename)
+        const newFilenameEnc = encodeURIComponent(newFilename)
+        logDebug(pluginJson, `moveNoteToResearchCollection newFilenameEnc=${newFilenameEnc}`)
+        // const newNote = await DataStore.noteByFilename(newFilename, 'Notes')
+        const newNotecontent = Editor?.content
+        if (newNotecontent) {
+          Editor.content = newNotecontent?.replace(new RegExp(escapeRegex(oldFilenameEnc), 'mg'), newFilenameEnc)
+          logDebug(pluginJson, `moveNoteToResearchCollection replaced:\n${oldFilenameEnc}\n${newFilenameEnc}`)
+        }
       }
     } else {
       logError(pluginJson, 'currentNote was false, cannot finish the move.')
