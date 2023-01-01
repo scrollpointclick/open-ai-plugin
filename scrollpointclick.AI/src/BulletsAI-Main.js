@@ -313,12 +313,12 @@ export async function moveNoteToResearchCollection() {
     const selectedDirectory = await CommandBar.showInput('Which directory?', 'Choose One') // you say choose, but this is a text input?
     const newPath = `${researchDirectory}/${selectedDirectory}`
     const newLocation = `${newPath}/${currentNote?.title || ''}.${DataStore.defaultFileExtension || '.txt'}`
-    // if (!researchFolders.includes(selectedDirectory)) {
-    //   logDebug(pluginJson, 'Directory does not yet exist.')
-    //   await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory, false)
-    // } else {
-    //   await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory)
-    // }
+    if (!researchFolders.includes(selectedDirectory)) {
+      logDebug(pluginJson, 'Directory does not yet exist.')
+      await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory, false)
+    } else {
+      await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory)
+    }
     if (currentNote) {
       // const newFilename = await currentNote.rename(newLocation) // after this move, the note is not active anymore
       const newFilename = DataStore.moveNote(currentNote.filename, newPath)
