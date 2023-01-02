@@ -281,7 +281,7 @@ export async function remixQuery(subject: string) {
 
 export async function explore(prevSubjectIn: string) {
   const selectedText = Editor.selectedText
-  const selectedSubtitle = await CommandBar.showInput(`${(selectedText) ? `${capitalizeFirstLetter(selectedText)}` : 'Type in your prompt.'} `, 'OK')
+  const selectedSubtitle = await CommandBar.showInput(`${(selectedText) ? `${capitalizeFirstLetter(selectedText)} (in the context of ${prevSubjectIn})` : 'Type in your prompt.'} `, 'OK')
 
   if (selectedSubtitle?.length) {
     await bulletsAI(selectedSubtitle, prevSubjectIn)
