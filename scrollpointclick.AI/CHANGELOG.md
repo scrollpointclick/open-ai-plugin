@@ -4,6 +4,11 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.2.7] - 2023-01-02 (@dwertheimer)
+
+### **Tweak**
+- Tweaked the move function to move note to a folder (you can now choose from a list of existing folders or create one)
+
 [0.2.6] - 2022-12-30 (@scrollpointclick)
 
 #### **Added**

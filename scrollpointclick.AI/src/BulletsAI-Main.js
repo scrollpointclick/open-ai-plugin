@@ -9,6 +9,7 @@ import { capitalizeFirstLetter, scrollToEntry } from './support/helpers'
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { escapeRegex, createPrettyOpenNoteLink } from '@helpers/general'
 import { showMessage } from '@helpers/userInput'
+import { chooseFolder } from '../../helpers/userInput'
 
 // const availableModels = ['text-davinci-003', 'text-curie-001', 'text-babbage-001', 'text-ada-001']
 type CompletionsRequest = { model: string, prompt?: string, max_tokens?: number, user?: string, suffix?: string, temperature?: string, top_p?: string, n?: number }
@@ -37,7 +38,7 @@ export async function createResearchDigSite(promptIn?: string | null = null) {
     subject = capitalizeFirstLetter(Editor.selectedText)
     // const useSelectedFolder = await chooseOption('g', options)
     createOuterLink()
-  } 
+  }
   // logDebug(pluginJson, `createResearchDigSite subject="${subject}" dir="${researchDirectory}" defaultExtension="${DataStore.defaultFileExtension}"`)
   const filename = `${researchDirectory}/${subject}.${DataStore.defaultFileExtension || '.txt'}`
   // logDebug(pluginJson, `createResearchDigSite filename="${filename}" Now trying to open note by filename`)
@@ -281,7 +282,10 @@ export async function remixQuery(subject: string) {
 
 export async function explore(prevSubjectIn: string) {
   const selectedText = Editor.selectedText
-  const selectedSubtitle = await CommandBar.showInput(`${(selectedText) ? `${capitalizeFirstLetter(selectedText)} (in the context of ${prevSubjectIn})` : 'Type in your prompt.'} `, 'OK')
+  const selectedSubtitle = await CommandBar.showInput(
+    `${selectedText ? `${capitalizeFirstLetter(selectedText)} (in the context of ${prevSubjectIn})` : 'Type in your prompt.'} `,
+    'OK',
+  )
 
   if (selectedSubtitle?.length) {
     await bulletsAI(selectedSubtitle, prevSubjectIn)
@@ -291,7 +295,6 @@ export async function explore(prevSubjectIn: string) {
     await showMessage('No prompt entered. Please try again.')
   }
 }
-
 
 export async function researchFromSelection() {
   const selectedText = Editor.selectedText
@@ -304,7 +307,7 @@ export async function researchFromSelection() {
 
 export async function moveNoteToResearchCollection() {
   try {
-  const { researchDirectory } = DataStore.settings
+    const { researchDirectory } = DataStore.settings
     const currentNote = Editor.note
     const oldFilenameEnc = encodeURIComponent(currentNote?.filename || '')
     logDebug(
@@ -315,15 +318,16 @@ export async function moveNoteToResearchCollection() {
     )
     const researchFolders = DataStore.folders.filter((p) => p.includes(`${researchDirectory}/`))
     // logDebug(pluginJson, researchFolders)
-    const selectedDirectory = await CommandBar.showInput('Which directory?', 'Choose One') // you say choose, but this is a text input?
-    const newPath = `${researchDirectory}/${selectedDirectory}`
-    const newLocation = `${newPath}/${currentNote?.title || ''}.${DataStore.defaultFileExtension || '.txt'}`
-  if (!researchFolders.includes(selectedDirectory)) {
-    logDebug(pluginJson, 'Directory does not yet exist.')
-    await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory, false)
-  } else {
-    await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory)
-  }
+    // const selectedDirectory = await CommandBar.showInput('Which directory?', 'Choose One') // you say choose, but this is a text input?
+    // const newPath = `${researchDirectory}/${selectedDirectory}`
+    // const newLocation = `${newPath}/${currentNote?.title || ''}.${DataStore.defaultFileExtension || '.txt'}`
+    const newPath = await chooseFolder('Move to which directory?', false, true, researchDirectory)
+    if (!researchFolders.includes(newPath)) {
+      logDebug(pluginJson, 'Directory does not yet exist.')
+      await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, newPath, false)
+    } else {
+      await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, newPath)
+    }
     if (currentNote) {
       // const newFilename = await currentNote.rename(newLocation) // after this move, the note is not active anymore
       const newFilename = DataStore.moveNote(currentNote.filename, newPath)
