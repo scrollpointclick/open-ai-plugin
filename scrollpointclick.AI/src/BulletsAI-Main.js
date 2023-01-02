@@ -37,7 +37,7 @@ export async function createResearchDigSite(promptIn?: string | null = null) {
     subject = capitalizeFirstLetter(Editor.selectedText)
     // const useSelectedFolder = await chooseOption('g', options)
     createOuterLink()
-  }
+  } 
   // logDebug(pluginJson, `createResearchDigSite subject="${subject}" dir="${researchDirectory}" defaultExtension="${DataStore.defaultFileExtension}"`)
   const filename = `${researchDirectory}/${subject}.${DataStore.defaultFileExtension || '.txt'}`
   // logDebug(pluginJson, `createResearchDigSite filename="${filename}" Now trying to open note by filename`)
@@ -280,13 +280,18 @@ export async function remixQuery(subject: string) {
 }
 
 export async function explore(prevSubjectIn: string) {
-  const selectedSubtitle = await CommandBar.showInput('Type in your prompt.', 'OK')
+  const selectedText = Editor.selectedText
+  const selectedSubtitle = await CommandBar.showInput(`${(selectedText) ? `${capitalizeFirstLetter(selectedText)}` : 'Type in your prompt.'} `, 'OK')
+
   if (selectedSubtitle?.length) {
     await bulletsAI(selectedSubtitle, prevSubjectIn)
+  } else if (!selectedSubtitle?.length && selectedText) {
+    await bulletsAI(selectedText, prevSubjectIn)
   } else {
     await showMessage('No prompt entered. Please try again.')
   }
 }
+
 
 export async function researchFromSelection() {
   const selectedText = Editor.selectedText
@@ -299,7 +304,7 @@ export async function researchFromSelection() {
 
 export async function moveNoteToResearchCollection() {
   try {
-    const { researchDirectory } = DataStore.settings
+  const { researchDirectory } = DataStore.settings
     const currentNote = Editor.note
     const oldFilenameEnc = encodeURIComponent(currentNote?.filename || '')
     logDebug(
@@ -313,12 +318,12 @@ export async function moveNoteToResearchCollection() {
     const selectedDirectory = await CommandBar.showInput('Which directory?', 'Choose One') // you say choose, but this is a text input?
     const newPath = `${researchDirectory}/${selectedDirectory}`
     const newLocation = `${newPath}/${currentNote?.title || ''}.${DataStore.defaultFileExtension || '.txt'}`
-    if (!researchFolders.includes(selectedDirectory)) {
-      logDebug(pluginJson, 'Directory does not yet exist.')
-      await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory, false)
-    } else {
-      await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory)
-    }
+  if (!researchFolders.includes(selectedDirectory)) {
+    logDebug(pluginJson, 'Directory does not yet exist.')
+    await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory, false)
+  } else {
+    await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, selectedDirectory)
+  }
     if (currentNote) {
       // const newFilename = await currentNote.rename(newLocation) // after this move, the note is not active anymore
       const newFilename = DataStore.moveNote(currentNote.filename, newPath)
@@ -344,7 +349,7 @@ export async function moveNoteToResearchCollection() {
 
 export async function updateResearchCollectionTableOfContents(newPath: string, originalNoteTitle: string, noteToAdd: TNote, selectedDirectory: string, exists: boolean = true) {
   const noteTableOfContents = noteToAdd.paragraphs.filter((p) => p.heading.includes('Table of Contents'))
-  const formattedOriginalNoteTitle = selectedDirectory.replace(' Research', '')
+  const formattedOriginalNoteTitle = originalNoteTitle.replace(' Research', '')
   const subtitleLinks = noteToAdd.paragraphs.filter((p) => p.type == 'heading' && p.content.includes('[') && !p.content.includes('Table of Contents'))
   const tocFileName = `${newPath}/Table of Contents.${DataStore.defaultFileExtension || '.txt'}`
   await Editor.openNoteByFilename(tocFileName, false, 0, 0, false, true)
@@ -354,7 +359,7 @@ export async function updateResearchCollectionTableOfContents(newPath: string, o
   Editor.appendParagraph(`### ${originalNoteTitle}`, 'heading')
   for (const para of noteTableOfContents) {
     if (!para.content.includes('---') && para.content != '') {
-      const newLink = await updatePrettyLink(para.content, originalNoteTitle, newPath)
+      const newLink = await updatePrettyLink(para.content, formattedOriginalNoteTitle, newPath)
       para.content = newLink
       noteToAdd.updateParagraph(para)
       Editor.appendParagraph(newLink, 'list')
