@@ -31,6 +31,7 @@ I strongly encourage you to explore the pricing information available on the [Op
 - **/createResearchDigSite**
 
     >This is the primary command to be used when starting to research a new subject. When called, you simply type in whatever subject you'd like to learn more about and then let it work its magic.
+    
     >The generated research will be placed into a folder titled "/Research" by default. This can be adjusted in the plugin preferences.
 
 
