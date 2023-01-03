@@ -33,7 +33,7 @@ I strongly encourage you to explore the pricing information available on the [Op
     >This is the primary command to be used when starting to research a new subject. When called, you simply type in whatever subject you'd like to learn more about and then let it work its magic. The generated research will be placed into a folder titled "/Research" by default. This can be adjusted in the plugin preferences.
 
 
-    #### *You Should Know*
+    *You Should Know*
 
     >This command can also be called by its much shorter alias: **/dig**
         
@@ -72,7 +72,7 @@ I strongly encourage you to explore the pricing information available on the [Op
 
     >The number of paragraphs that you'd like the AI to generate for your summary results. 
 
-    #### *You Should Know*
+    *You Should Know*
 
     >The more paragraphs, the longer the response will take to generate and the higher the cost of the response.
 
