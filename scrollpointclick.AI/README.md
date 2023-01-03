@@ -30,23 +30,21 @@ I strongly encourage you to explore the pricing information available on the [Op
 ### Commands
 - **/createResearchDigSite**
 
-    >This is the primary command to be used when starting to research a new subject. When called, you simply type in whatever subject you'd like to learn more about and then let it work its magic.
-    
-    >The generated research will be placed into a folder titled "/Research" by default. This can be adjusted in the plugin preferences.
+    >This is the primary command to be used when starting to research a new subject. When called, you simply type in whatever subject you'd like to learn more about and then let it work its magic. The generated research will be placed into a folder titled "/Research" by default. This can be adjusted in the plugin preferences.
 
 
-    *You Should Know*
-
-        - This command can also be called by its much shorter alias: **/dig**
-        - If you have text highlighted, it will autofill the subject line so you can just press "Enter" to quickly research the selected text.
+    >*You Should Know*
+    >This command can also be called by its much shorter alias: **/dig**
+        
+    >If you have text highlighted, it will autofill the subject line so you can just press "Enter" to quickly research the selected text.
 
 - **/researchFromSelection**
 
-    This command will research the selected text *in the context of the current research subject.* The generated research will be formatted and appended to the bottom of the current note.
+    >This command will research the selected text *in the context of the current research subject.* The generated research will be formatted and appended to the bottom of the current note.
 
 - **/moveNoteToResearchCollection**
 
-    This command will move the current note into an existing or new sidebar directory within the Research tree. The command will also generate a Table of Contents at the top level of the directory to allow for quick access to the related ideas that you have researched.
+    >This command will move the current note into an existing or new sidebar directory within the Research tree. The command will also generate a Table of Contents at the top level of the directory to allow for quick access to the related ideas that you have researched.
 
 - **/createAIImage**
 
