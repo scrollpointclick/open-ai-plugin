@@ -3,6 +3,19 @@
 See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointclick.AI/README.md) for details on available commands and use case.
 
 ## What's Changed?
+[0.2.8] - 2023-01-03 (@scrollpointclick)
+
+#### **Changed**
+- Moved a number of functions from BulletsAI_Main and NPAI to their own files to help with organization.
+  - networking.js (for functions that primarily deal with API calls)
+  - externalFileInteractions.js (for functions that deal primarily with loading and saving JSON)
+  - non-implemented_functions.js (for the numerous functions that are not quite ready/necessary and still in progress.)
+
+#### **Fixed**
+
+
+#### **Known Issues**
+
 
 [0.2.7] - 2023-01-02 (@dwertheimer)
 

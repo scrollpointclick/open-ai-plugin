@@ -1,5 +1,5 @@
-import { getPromptAndNumberOfResults, makeRequest } from "./NPAI"
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
+import { makeRequest } from './support/networking'
 
 
 const pluginJson = `scrollpointclick.AI/helpers`

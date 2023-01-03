@@ -1,11 +1,10 @@
 // @flow
 
 const pluginJson = `scrollpointclick.AI/helpers`
-import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
-import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
+import { logDebug, logError, logWarn, clo, JSP } from '@helpers/dev'
+import { createPrettyRunPluginLink } from '@helpers/general'
 import { removeContentUnderHeading } from '@helpers/NPParagraph'
-import { getProjectNotesInFolder } from '@helpers/note'
-import { chooseOption, showMessage, showMessageYesNo, getInput } from '@helpers/userInput'
+import { chooseOption } from '@helpers/userInput'
 
 export const modelOptions = {
   'text-davinci-003': 0.02,

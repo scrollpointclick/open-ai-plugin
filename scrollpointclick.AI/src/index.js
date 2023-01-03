@@ -22,15 +22,17 @@
 
 export {
   testConnection,
+  introWizard,
+  helpWizard,
+} from './NPAI' // add one of these for every command specifified in plugin.json (the function could be in any file as long as it's exported)
+export {
   createResearchRequest,
   createResearchListRequest,
   createQuickSearch,
   summarizeNote,
-  introWizard,
-  helpWizard,
   updateREADME,
-  noteToPrompt,
-} from './NPAI' // add one of these for every command specifified in plugin.json (the function could be in any file as long as it's exported)
+  noteToPrompt
+} from '../non-implemented_functions'
 export { bulletsAI, createResearchDigSite, remixQuery, explore, researchFromSelection, moveNoteToResearchCollection } from './BulletsAI-Main'
 export { adjustPreferences, scrollToEntry } from './support/helpers'
 export { createAIImages } from './imageAI'

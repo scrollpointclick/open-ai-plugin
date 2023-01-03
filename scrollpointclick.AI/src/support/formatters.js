@@ -2,7 +2,7 @@
 
 import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
 import { createPrettyRunPluginLink, createPrettyOpenNoteLink } from '@helpers/general'
-import { removeEntry, scrollToEntry, capitalizeFirstLetter } from './helpers'
+import { capitalizeFirstLetter } from './helpers'
 import { removeContentUnderHeading } from '@helpers/NPParagraph'
 
 const pluginJson = `scrollpointclick.AI/helpers`

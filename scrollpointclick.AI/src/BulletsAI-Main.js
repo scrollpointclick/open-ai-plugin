@@ -1,17 +1,16 @@
 // @flow
 import pluginJson from '../plugin.json'
 import { type JSONData } from './support/AIFlowTypes'
-import { makeRequest } from './NPAI'
+import { makeRequest } from './support/networking'
 import { generateSubjectSummaryPrompt, generateKeyTermsPrompt, generateExplorationPrompt } from './support/prompts'
-import { formatSubtitle, formatKeyTermsForSummary, formatBulletSummary, formatFurtherLink, formatModelInformation, formatTableOfContents } from './support/formatters'
+import { formatSubtitle, formatBulletSummary, formatTableOfContents } from './support/formatters'
 import { capitalizeFirstLetter, scrollToEntry } from './support/helpers'
-// import { removeContentUnderHeading } from '@helpers/NPParagraph'
-import { log, logDebug, logError, logWarn, clo, JSP, timer } from '@helpers/dev'
+import { logDebug, logError, JSP } from '@helpers/dev'
 import { escapeRegex, createPrettyOpenNoteLink } from '@helpers/general'
 import { showMessage } from '@helpers/userInput'
 import { chooseFolder } from '../../helpers/userInput'
+import { initializeData, saveClickedLink, updateClickedLinksJsonData } from './support/externalFileInteractions'
 
-// const availableModels = ['text-davinci-003', 'text-curie-001', 'text-babbage-001', 'text-ada-001']
 type CompletionsRequest = { model: string, prompt?: string, max_tokens?: number, user?: string, suffix?: string, temperature?: string, top_p?: string, n?: number }
 const completionsComponent = 'completions'
 
@@ -21,34 +20,39 @@ const completionsComponent = 'completions'
  */
 
 export async function createResearchDigSite(promptIn?: string | null = null) {
-  const { researchDirectory } = DataStore.settings
-  const options = [
-    {
-      label: 'Default',
-      value: 'Default',
-    },
-    {
-      label: 'Custom',
-      value: 'Custom',
-    },
-  ]
-  let subject = ''
-  subject = promptIn ?? (await CommandBar.showInput(Editor.selectedText ? `${capitalizeFirstLetter(Editor.selectedText)}` : 'Type in your subject..', 'Start Research'))
-  if (subject == '' && Editor.selectedText) {
-    subject = capitalizeFirstLetter(Editor.selectedText)
-    // const useSelectedFolder = await chooseOption('g', options)
-    createOuterLink()
+  try {
+    const { researchDirectory } = DataStore.settings
+    const options = [
+      {
+        label: 'Default',
+        value: 'Default',
+      },
+      {
+        label: 'Custom',
+        value: 'Custom',
+      },
+    ]
+    let subject = ''
+    subject = promptIn ?? (await CommandBar.showInput(Editor.selectedText ? `${capitalizeFirstLetter(Editor.selectedText)}` : 'Type in your subject..', 'Start Research'))
+    if (subject == '' && Editor.selectedText) {
+      subject = capitalizeFirstLetter(Editor.selectedText)
+      // const useSelectedFolder = await chooseOption('g', options)
+      createOuterLink()
+    }
+    // logDebug(pluginJson, `createResearchDigSite subject="${subject}" dir="${researchDirectory}" defaultExtension="${DataStore.defaultFileExtension}"`)
+    const filename = `${researchDirectory}/${subject}.${DataStore.defaultFileExtension || '.txt'}`
+    logDebug(pluginJson, `createResearchDigSite filename="${filename}" Now trying to open note by filename`)
+    await Editor.openNoteByFilename(filename, false, 0, 0, false, true, `# ${subject} Research\n`)
+    // logDebug(pluginJson, `createResearchDigSite opened Editor note by filename title is now:"${String(Editor.title)}" Editor.filename="${String(Editor.filename)}"`)
+    if (Editor.title === `${subject} Research`) {
+      await bulletsAI(subject)
+    } else {
+      // logDebug(pluginJson, `createResearchDigSite Wanted Editor.title to be "${subject} Research" but Editor.title is "${Editor.title || ''}"`)
+    }
+  } catch (error) {
+    logError(pluginJson, `Error completing the createResearchDigSite request.\nError: ${error}`)
   }
-  // logDebug(pluginJson, `createResearchDigSite subject="${subject}" dir="${researchDirectory}" defaultExtension="${DataStore.defaultFileExtension}"`)
-  const filename = `${researchDirectory}/${subject}.${DataStore.defaultFileExtension || '.txt'}`
-  // logDebug(pluginJson, `createResearchDigSite filename="${filename}" Now trying to open note by filename`)
-  await Editor.openNoteByFilename(filename, false, 0, 0, false, true, `# ${subject} Research\n`)
-  // logDebug(pluginJson, `createResearchDigSite opened Editor note by filename title is now:"${String(Editor.title)}" Editor.filename="${String(Editor.filename)}"`)
-  if (Editor.title === `${subject} Research`) {
-    await bulletsAI(subject)
-  } else {
-    // logDebug(pluginJson, `createResearchDigSite Wanted Editor.title to be "${subject} Research" but Editor.title is "${Editor.title || ''}"`)
-  }
+  
 }
 
 export async function createOuterLink() {
@@ -149,60 +153,60 @@ async function checkInitialState(promptIn: string, prevSubjectIn: string | null,
   }
 }
 
-/**
- * Generative Research Tree by loading or creating the JSON file
- * @param {string} jsonData - the JSON data to save to the file.
- * @returns {*}
- */
-function initializeData(query?: string) {
-  logDebug(pluginJson, `initializeData Editor.title=${Editor.title}`)
-  let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
-  if (!loadedJSON) {
-    if (query) {
-      const newJSON = {
-        initialSubject: query,
-        unclickedLinks: [],
-        clickedLinks: [],
-        remixes: [],
-      }
-      DataStore.saveJSON(newJSON, `Query Data/${Editor.title}/data.json`)
-      loadedJSON = newJSON
-      return loadedJSON
-    }
-  } else {
-    // logDebug(pluginJson, `\n----\n-----initializeData-----\nLoaded!\n\n----\n`)
-  }
-  return loadedJSON
-}
+// /**
+//  * Generative Research Tree by loading or creating the JSON file
+//  * @param {string} jsonData - the JSON data to save to the file.
+//  * @returns {*}
+//  */
+// function initializeData(query?: string) {
+//   logDebug(pluginJson, `initializeData Editor.title=${Editor.title}`)
+//   let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
+//   if (!loadedJSON) {
+//     if (query) {
+//       const newJSON = {
+//         initialSubject: query,
+//         unclickedLinks: [],
+//         clickedLinks: [],
+//         remixes: [],
+//       }
+//       DataStore.saveJSON(newJSON, `Query Data/${Editor.title}/data.json`)
+//       loadedJSON = newJSON
+//       return loadedJSON
+//     }
+//   } else {
+//     // logDebug(pluginJson, `\n----\n-----initializeData-----\nLoaded!\n\n----\n`)
+//   }
+//   return loadedJSON
+// }
 
-/**
- * Update the data.json object, moving a clicked link from unclickedLinks to clickedLinks
- * @param {JSONData} json data object
- * @param {string} linkToMove
- * @returns {JSONData} the updated JSON data object
- */
-export function saveClickedLink(json: JSONData, linkToMove: string): JSONData {
-  const { unclickedLinks, clickedLinks } = json
-  const newUnclickedLinks = unclickedLinks.filter((link) => link !== linkToMove)
-  const newClickedLinks = [...clickedLinks, linkToMove]
-  return { ...json, unclickedLinks: newUnclickedLinks, clickedLinks: newClickedLinks }
-}
+// /**
+//  * Update the data.json object, moving a clicked link from unclickedLinks to clickedLinks
+//  * @param {JSONData} json data object
+//  * @param {string} linkToMove
+//  * @returns {JSONData} the updated JSON data object
+//  */
+// export function saveClickedLink(json: JSONData, linkToMove: string): JSONData {
+//   const { unclickedLinks, clickedLinks } = json
+//   const newUnclickedLinks = unclickedLinks.filter((link) => link !== linkToMove)
+//   const newClickedLinks = [...clickedLinks, linkToMove]
+//   return { ...json, unclickedLinks: newUnclickedLinks, clickedLinks: newClickedLinks }
+// }
 
-/**
- * Load the stored JSON file and update it with the clicked link
- * @param {string} clickedLink - the link that was clicked
- * @returns {void}
- */
-function updateClickedLinksJsonData(clickedLink: string) {
-  if (Editor.title) {
-    const filename = `Query Data/${Editor.title}/data.json`
-    const loadedJSON = DataStore.loadJSON(filename)
-    if (!loadedJSON['clickedLinks'].includes(clickedLink)) {
-      const updatedJSON = saveClickedLink(loadedJSON, clickedLink.trim())
-      DataStore.saveJSON(updatedJSON, filename)
-    }
-  }
-}
+// /**
+//  * Load the stored JSON file and update it with the clicked link
+//  * @param {string} clickedLink - the link that was clicked
+//  * @returns {void}
+//  */
+// function updateClickedLinksJsonData(clickedLink: string) {
+//   if (Editor.title) {
+//     const filename = `Query Data/${Editor.title}/data.json`
+//     const loadedJSON = DataStore.loadJSON(filename)
+//     if (!loadedJSON['clickedLinks'].includes(clickedLink)) {
+//       const updatedJSON = saveClickedLink(loadedJSON, clickedLink.trim())
+//       DataStore.saveJSON(updatedJSON, filename)
+//     }
+//   }
+// }
 
 function updateBulletLinks(keyTerm?: string = '') {
   const loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
@@ -318,10 +322,8 @@ export async function moveNoteToResearchCollection() {
     )
     const researchFolders = DataStore.folders.filter((p) => p.includes(`${researchDirectory}/`))
     // logDebug(pluginJson, researchFolders)
-    // const selectedDirectory = await CommandBar.showInput('Which directory?', 'Choose One') // you say choose, but this is a text input?
-    // const newPath = `${researchDirectory}/${selectedDirectory}`
-    // const newLocation = `${newPath}/${currentNote?.title || ''}.${DataStore.defaultFileExtension || '.txt'}`
     const newPath = await chooseFolder('Move to which directory?', false, true, researchDirectory)
+
     if (!researchFolders.includes(newPath)) {
       logDebug(pluginJson, 'Directory does not yet exist.')
       await updateResearchCollectionTableOfContents(newPath, currentNote.title, currentNote, newPath, false)
