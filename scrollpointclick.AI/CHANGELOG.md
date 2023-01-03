@@ -11,11 +11,8 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
   - externalFileInteractions.js (for functions that deal primarily with loading and saving JSON)
   - non-implemented_functions.js (for the numerous functions that are not quite ready/necessary and still in progress.)
 
-#### **Fixed**
-
-
 #### **Known Issues**
-
+- After moving to a new directory, the final link in the subtitles that utilize the full history do not format properly and thus do not link back to the related heading.
 
 [0.2.7] - 2023-01-02 (@dwertheimer)
 
