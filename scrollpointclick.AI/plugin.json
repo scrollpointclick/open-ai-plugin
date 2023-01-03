@@ -249,14 +249,14 @@
       "default": "Research"
     },
     {
-      "title": "BulletsAI Summary Paragraphs",
+      "title": "Target Summary Paragraphs",
       "key": "bulletsSummaryParagraphs",
       "type": "number",
       "description": "Select the desired number of paragraphs to be generated with each summary.\nLess than 3 is a good starting point.",
       "default": 2
     },
     {
-      "title": "BulletsAI Key Terms",
+      "title": "Target Key Terms",
       "key": "bulletsAIKeyTerms",
       "type": "number",
       "description": "Select the desired number of key terms to be generated with each summary.\nLess than 5 is a good starting point.",

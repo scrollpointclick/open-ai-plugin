@@ -9,7 +9,7 @@ import { logDebug, logError, JSP } from '@helpers/dev'
 import { escapeRegex, createPrettyOpenNoteLink } from '@helpers/general'
 import { showMessage } from '@helpers/userInput'
 import { chooseFolder } from '../../helpers/userInput'
-import { initializeData, saveClickedLink, updateClickedLinksJsonData } from './support/externalFileInteractions'
+import { initializeData, saveClickedLink, updateClickedLinksJsonData, updateTokenCountJsonData } from './support/externalFileInteractions'
 
 type CompletionsRequest = { model: string, prompt?: string, max_tokens?: number, user?: string, suffix?: string, temperature?: string, top_p?: string, n?: number }
 const completionsComponent = 'completions'
@@ -235,8 +235,9 @@ async function parseResponse(request: Object | null, listRequest: Object | null,
   if (request) {
     const responseText = request.choices[0].text.trim()
     const keyTermsList = listRequest.choices[0].text.split(',')
+    const totalTokensUsed = request.usage.total_tokens + listRequest.usage.total_tokens
     const keyTerms = []
-    // logDebug(pluginJson, `parseResponse Editor.title="${Editor.title}"`)
+    logDebug(pluginJson, `\n\n\nTotal Tokens Used="${totalTokensUsed}"\n\n\n`)
     const jsonData = { ...DataStore.loadJSON(`Query Data/${Editor.title}/data.json`) }
     // clo(jsonData, 'parseResponse jsonData BEFORE')
     for (const keyTerm of jsonData['unclickedLinks']) {
@@ -247,6 +248,7 @@ async function parseResponse(request: Object | null, listRequest: Object | null,
         keyTerms.push(keyTerm.trim())
       }
     }
+    updateTokenCountJsonData(totalTokensUsed)
     jsonData['unclickedLinks'] = keyTerms
     // clo(jsonData, 'parseResponse jsonData AFTER')
     DataStore.saveJSON(jsonData, `Query Data/${Editor.title}/data.json`)
