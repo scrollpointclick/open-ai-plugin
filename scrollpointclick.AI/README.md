@@ -35,6 +35,7 @@ I strongly encourage you to explore the pricing information available on the [Op
     The generated research will be placed into a folder titled "/Research" by default. This can be adjusted in the plugin preferences.
 
     *You Should Know*
+    
         - This command can also be called by its much shorter alias: **/dig**
         - If you have text highlighted, it will autofill the subject line so you can just press "Enter" to quickly research the selected text.
 
@@ -72,6 +73,7 @@ I strongly encourage you to explore the pricing information available on the [Op
     The number of paragraphs that you'd like the AI to generate for your summary results. 
 
     *You Should Know*
+
         - The more paragraphs, the longer the response will take to generate and the higher the cost of the response.
 
 - **BulletsAI Key Terms**
