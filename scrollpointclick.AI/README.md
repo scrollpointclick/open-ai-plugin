@@ -25,6 +25,8 @@ That's it! You can now use the commands in the following section.
 
 I strongly encourage you to explore the pricing information available on the [OpenAI website](https://openai.com/api/pricing/).
 
+---
+
 ### Commands
 - **/createResearchDigSite**
 
@@ -50,6 +52,7 @@ I strongly encourage you to explore the pricing information available on the [Op
 
     
 ---
+
 ### Preferences
 - **OpenAI API Key**
 
