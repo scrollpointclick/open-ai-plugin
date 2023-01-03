@@ -61,7 +61,7 @@ I strongly encourage you to explore the pricing information available on the [Op
 - **OpenAI API Key**
 
     >You must provide your OpenAI API Key in order to use the platform.
-    >Visit [your accout page](https://beta.openai.com/account/api-keys) for more information.
+    >Visit [your account page](https://beta.openai.com/account/api-keys) for more information.
 
 - **Default Text Model**
 
