@@ -54,6 +54,9 @@ I strongly encourage you to explore the pricing information available on the [Op
     
 ---
 
+### The Anatomy of a Research Note
+![anatomy_of_reserach_note_image](./src/images/anatomy_of_research_note.png)
+
 ### Preferences
 - **OpenAI API Key**
 
