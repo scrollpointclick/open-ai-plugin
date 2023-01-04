@@ -2,9 +2,10 @@
 
 const pluginJson = `scrollpointclick.AI/helpers`
 import { logDebug, logError, logWarn, clo, JSP } from '@helpers/dev'
-import { createPrettyRunPluginLink } from '@helpers/general'
+import { createPrettyRunPluginLink, parseJSON5 } from '@helpers/general'
 import { removeContentUnderHeading } from '@helpers/NPParagraph'
 import { chooseOption } from '@helpers/userInput'
+import { getInput } from '../../../helpers/userInput'
 
 export const modelOptions = {
   'text-davinci-003': 0.02,
@@ -175,4 +176,21 @@ export async function checkModel() {
       logDebug(pluginJson, `noteToPrompt: ${chosenModel} selected`)
     }
   return chosenModel
+}
+
+export async function listEndpoints() {
+  const allPlugins = await DataStore.listPlugins()
+  const aiPlugin = allPlugins.filter((p) => p.id == 'scrollpointclick.AI')
+  let availableCommands = []
+  for (var p of aiPlugin) {
+    for (var c of p.commands) {
+      if (!c.isHidden) {
+        availableCommands.push(c)
+      }
+    }
+  }
+  const aiCommands = await availableCommands.map((p) => ({ label: `${p.name}`, value: p.name }))
+  const selectedCommand = await chooseOption('NoteAI - Commands', aiCommands)
+  clo(selectedCommand, selectedCommand)
+  await DataStore.invokePluginCommandByName(selectedCommand, 'scrollpointclick.AI')
 }

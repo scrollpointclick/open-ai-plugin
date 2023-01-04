@@ -54,6 +54,9 @@ I strongly encourage you to explore the pricing information available on the [Op
 
     >Generate images with DALL-E @ OpenAI
 
+- **/Show NoteAI Commands**
+    > Shows an interactive list of all available NoteAI commands.
+
     
 ---
 

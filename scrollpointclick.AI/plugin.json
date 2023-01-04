@@ -4,8 +4,8 @@
   "noteplan.minAppVersion": "3.4.0",
   "plugin.id": "scrollpointclick.AI",
   "plugin.name": "💡 AAI",
-  "plugin.version": "0.2.8",
-  "plugin.lastUpdateInfo": "Reorganization of several functions to support better organization and navigation.",
+  "plugin.version": "0.2.9",
+  "plugin.lastUpdateInfo": "Added ability to search through available NoteAI commands..",
   "plugin.description": "GPT integration for research, summarization, etc.",
   "plugin.author": "Aaron @scrollpointclick with a little encouragement from @dwertheimer",
   "plugin.dependencies": [],
@@ -91,7 +91,16 @@
         
       ],
       "arguments": []
-    }, 
+    },
+    {
+      "name": "Show NoteAI Commands",
+      "description": "Select from available NoteAI commands",
+      "jsFunction": "listEndpoints",
+      "alias": [
+        "naicomm"
+      ],
+      "arguments": []
+    },  
     {
       "name": "Move Note to Research Collection",
       "description": "Move the current note to Research collection.",

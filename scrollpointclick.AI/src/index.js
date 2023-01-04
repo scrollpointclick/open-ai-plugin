@@ -34,7 +34,7 @@ export {
   noteToPrompt
 } from '../non-implemented_functions'
 export { bulletsAI, createResearchDigSite, remixQuery, explore, researchFromSelection, moveNoteToResearchCollection } from './BulletsAI-Main'
-export { adjustPreferences, scrollToEntry } from './support/helpers'
+export { adjustPreferences, scrollToEntry, listEndpoints } from './support/helpers'
 export { createAIImages } from './imageAI'
 
 // import './support/fetchOverrides'

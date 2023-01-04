@@ -61,14 +61,18 @@ export function saveClickedLink(json: JSONData, linkToMove: string): JSONData {
 export function updateTokenCountJsonData(tokenCount: number) {
     if (Editor.title) {
         const filename = `Query Data/${Editor.title}/data.json`
-        const loadedJSON = DataStore.loadJSON(filename)
+        let loadedJSON = DataStore.loadJSON(filename)
         const updatedJSON = saveTokenCount(loadedJSON, tokenCount)
-        logDebug(pluginJson, `\n\n updatedJson=${updatedJSON}\n\n`)
+        // loadedJSON['totalTokensUsed'] = Number(loadedJSON['totalTokensUsed'] += tokenCount)
+        // logDebug(pluginJson, `\n\n updatedJson=${updatedJSON}\n\n`)
+        logDebug(pluginJson, `\n\n filename=${filename}\n\n`)
         clo(updatedJSON, updatedJSON)
         DataStore.saveJSON(updatedJSON, filename)
+        // DataStore.saveJSON(loadedJSON, filename)
 
         // logDebug(pluginJson, `\n\n Saved Json=${updatedJSON}\n\n`)
     }
+    
 }
 
   /**
@@ -79,10 +83,11 @@ export function updateTokenCountJsonData(tokenCount: number) {
  */
   export function saveTokenCount(json: JSONData, tokensUsed: number): JSONData {
     const { totalTokensUsed } = json
-    logDebug(pluginJson, `\n\n incomingTokensUsed=${tokensUsed}\n\n`)
-    logDebug(pluginJson, `\n\n totalTokensUsed=${totalTokensUsed}\n\n`)
+    logDebug(pluginJson, `\n\n incomingTokensUsed=${tokensUsed}: ${typeof(tokensUsed)}\n\n`)
+    logDebug(pluginJson, `\n\n totalTokensUsed=${totalTokensUsed}: ${typeof(totalTokensUsed)}\n\n`)
+
     const newTotalTokensUsed = totalTokensUsed + tokensUsed
-    logDebug(pluginJson, `\n\n newTotalTokensUsed=${newTotalTokensUsed}\n\n`)
+    logDebug(pluginJson, `\n\n newTotalTokensUsed=${newTotalTokensUsed}: ${typeof(newTotalTokensUsed)}\n\n`)
     return { ...json, totalTokensUsed: newTotalTokensUsed }
   }
 

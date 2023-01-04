@@ -153,61 +153,6 @@ async function checkInitialState(promptIn: string, prevSubjectIn: string | null,
   }
 }
 
-// /**
-//  * Generative Research Tree by loading or creating the JSON file
-//  * @param {string} jsonData - the JSON data to save to the file.
-//  * @returns {*}
-//  */
-// function initializeData(query?: string) {
-//   logDebug(pluginJson, `initializeData Editor.title=${Editor.title}`)
-//   let loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
-//   if (!loadedJSON) {
-//     if (query) {
-//       const newJSON = {
-//         initialSubject: query,
-//         unclickedLinks: [],
-//         clickedLinks: [],
-//         remixes: [],
-//       }
-//       DataStore.saveJSON(newJSON, `Query Data/${Editor.title}/data.json`)
-//       loadedJSON = newJSON
-//       return loadedJSON
-//     }
-//   } else {
-//     // logDebug(pluginJson, `\n----\n-----initializeData-----\nLoaded!\n\n----\n`)
-//   }
-//   return loadedJSON
-// }
-
-// /**
-//  * Update the data.json object, moving a clicked link from unclickedLinks to clickedLinks
-//  * @param {JSONData} json data object
-//  * @param {string} linkToMove
-//  * @returns {JSONData} the updated JSON data object
-//  */
-// export function saveClickedLink(json: JSONData, linkToMove: string): JSONData {
-//   const { unclickedLinks, clickedLinks } = json
-//   const newUnclickedLinks = unclickedLinks.filter((link) => link !== linkToMove)
-//   const newClickedLinks = [...clickedLinks, linkToMove]
-//   return { ...json, unclickedLinks: newUnclickedLinks, clickedLinks: newClickedLinks }
-// }
-
-// /**
-//  * Load the stored JSON file and update it with the clicked link
-//  * @param {string} clickedLink - the link that was clicked
-//  * @returns {void}
-//  */
-// function updateClickedLinksJsonData(clickedLink: string) {
-//   if (Editor.title) {
-//     const filename = `Query Data/${Editor.title}/data.json`
-//     const loadedJSON = DataStore.loadJSON(filename)
-//     if (!loadedJSON['clickedLinks'].includes(clickedLink)) {
-//       const updatedJSON = saveClickedLink(loadedJSON, clickedLink.trim())
-//       DataStore.saveJSON(updatedJSON, filename)
-//     }
-//   }
-// }
-
 function updateBulletLinks(keyTerm?: string = '') {
   const loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
   let prettyKeyTerm = ''
@@ -237,7 +182,7 @@ async function parseResponse(request: Object | null, listRequest: Object | null,
     const keyTermsList = listRequest.choices[0].text.split(',')
     const totalTokensUsed = request.usage.total_tokens + listRequest.usage.total_tokens
     const keyTerms = []
-    logDebug(pluginJson, `\n\n\nTotal Tokens Used="${totalTokensUsed}"\n\n\n`)
+    logDebug(pluginJson, `\n\n\nTotal Tokens Used=${totalTokensUsed}\n\n\n`)
     const jsonData = { ...DataStore.loadJSON(`Query Data/${Editor.title}/data.json`) }
     // clo(jsonData, 'parseResponse jsonData BEFORE')
     for (const keyTerm of jsonData['unclickedLinks']) {
@@ -373,14 +318,6 @@ export async function updateResearchCollectionTableOfContents(newPath: string, o
       Editor.appendParagraph(newLink, 'list')
     }
   }
-  // Need to figure out how to fix backlinks in the subtitles.
-  // for (const para of subtitleLinks) {
-  //   // logDebug(pluginJson, para.content)
-  //     const newLink = await updatePrettyLink(para.content, originalNoteTitle, newPath)
-  //     para.content = newLink
-  //     noteToAdd.updateParagraph(para)
-  //     Editor.appendParagraph(newLink, 'list')
-  // }
 }
 
 export async function updatePrettyLink(link: string, originalNoteTitle: string, newPath: string) {

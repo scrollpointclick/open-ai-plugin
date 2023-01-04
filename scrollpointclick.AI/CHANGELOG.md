@@ -3,6 +3,15 @@
 See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointclick.AI/README.md) for details on available commands and use case.
 
 ## What's Changed?
+[0.2.9] - 2023-01-03 (@scrollpointclick)
+
+#### **Added**
+- **/Show NoteAI Commands**
+  - Reveals a list of non-hidden NoteAI commands that can be launched directly from the list.
+
+- Started implementation of adding the ability to track total token usage for each research tree. Pending resolution from NotePlan Json saving function.
+
+
 [0.2.8] - 2023-01-03 (@scrollpointclick)
 
 #### **Changed**
