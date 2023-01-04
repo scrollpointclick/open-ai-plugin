@@ -4,8 +4,8 @@
   "noteplan.minAppVersion": "3.4.0",
   "plugin.id": "scrollpointclick.AI",
   "plugin.name": "💡 AAI",
-  "plugin.version": "0.2.9",
-  "plugin.lastUpdateInfo": "Added ability to search through available NoteAI commands..",
+  "plugin.version": "0.3.0.",
+  "plugin.lastUpdateInfo": "Added quick access functions for most preferences..",
   "plugin.description": "GPT integration for research, summarization, etc.",
   "plugin.author": "Aaron @scrollpointclick with a little encouragement from @dwertheimer",
   "plugin.dependencies": [],
@@ -217,6 +217,52 @@
       "hidden": true,
       "alias": [
 
+      ],
+      "arguments": []
+    },
+    {
+      "name": "Change Max Token Target - NoteAI",
+      "description": "Provides quick access to updating the Max Token Target preference.",
+      "jsFunction": "changeDefaultMaxTokens",
+      "alias": [
+        "tokens"
+      ],
+      "arguments": []
+    },
+    {
+      "name": "Change Key Terms Target - NoteAI",
+      "description": "Provides quick access to updating the Key Terms Target preference.",
+      "jsFunction": "changeDefaultTargetKeyTerms",
+      "alias": [
+        "keyterms"
+      ],
+      "arguments": []
+    },
+    {
+      "name": "Set OpenAI API Key - NoteAI",
+      "description": "Provides quick access to updating the OpenAI API Key preference.",
+      "jsFunction": "setOpenAIAPIKey",
+      "alias": [
+        "keyterms"
+      ],
+      "arguments": []
+    },
+    {
+      "name": "Change Summary Paragraphs Target - NoteAI",
+      "description": "Provides quick access to updating the Summary Paragraphs Target preference.",
+      "jsFunction": "changeTargetSummaryParagraphs",
+      "alias": [
+        "summarytarget"
+      ],
+      "arguments": []
+    },
+    {
+      "name": "Change Preference - NoteAI",
+      "description": "Provides quick access to updating the NoteAI plugin preferences.",
+      "jsFunction": "updatePluginPreference",
+      "hidden": true,
+      "alias": [
+        "aipref"
       ],
       "arguments": []
     }

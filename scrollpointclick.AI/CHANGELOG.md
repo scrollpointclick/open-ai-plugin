@@ -3,6 +3,15 @@
 See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointclick.AI/README.md) for details on available commands and use case.
 
 ## What's Changed?
+[0.3.0] - 2023-01-04 (@scrollpointclick)
+
+#### **Added**
+- settingsAdjustments.js
+  - changeDefaultMaxTokens
+  - changeTargetSummaryParagraphs
+  - changeDefaultTargetKeyTerms
+  - setOpenAIAPIKey
+
 [0.2.9] - 2023-01-03 (@scrollpointclick)
 
 #### **Added**

@@ -36,6 +36,7 @@ export {
 export { bulletsAI, createResearchDigSite, remixQuery, explore, researchFromSelection, moveNoteToResearchCollection } from './BulletsAI-Main'
 export { adjustPreferences, scrollToEntry, listEndpoints } from './support/helpers'
 export { createAIImages } from './imageAI'
+export { changeDefaultMaxTokens, changeTargetSummaryParagraphs, changeDefaultTargetKeyTerms, setOpenAIAPIKey } from './support/settingsAdjustments'
 
 // import './support/fetchOverrides'
 

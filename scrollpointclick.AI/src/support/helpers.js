@@ -179,18 +179,25 @@ export async function checkModel() {
 }
 
 export async function listEndpoints() {
-  const allPlugins = await DataStore.listPlugins()
-  const aiPlugin = allPlugins.filter((p) => p.id == 'scrollpointclick.AI')
-  let availableCommands = []
-  for (var p of aiPlugin) {
-    for (var c of p.commands) {
-      if (!c.isHidden) {
-        availableCommands.push(c)
-      }
-    }
-  }
-  const aiCommands = await availableCommands.map((p) => ({ label: `${p.name}`, value: p.name }))
-  const selectedCommand = await chooseOption('NoteAI - Commands', aiCommands)
-  clo(selectedCommand, selectedCommand)
-  await DataStore.invokePluginCommandByName(selectedCommand, 'scrollpointclick.AI')
+  // const allPlugins = await DataStore.listPlugins()
+  // const aiPlugin = allPlugins.filter((p) => p.id == 'scrollpointclick.AI')
+  // let availableCommands = []
+  // for (var p of aiPlugin) {
+  //   for (var c of p.commands) {
+  //     if (!c.isHidden) {
+  //       availableCommands.push(c)
+  //     }
+  //   }
+  // }
+  // const aiCommands = await availableCommands.map((p) => ({ label: `${p.name}`, value: p.name }))
+  // const selectedCommand = await chooseOption('NoteAI - Commands', aiCommands)
+  // clo(selectedCommand, selectedCommand)
+  // await DataStore.invokePluginCommandByName(selectedCommand, 'scrollpointclick.AI')
+  let { max_tokens } = DataStore.settings
+  clo(max_tokens, max_tokens)
+
+  const newMaxTokens = await CommandBar.showInput(`Current Value: ${max_tokens}`, 'Update Max Token Target')
+  // DataStore.settings['max_tokens'] = Number(newMaxTokens)
+  // DataStore.setPreference('max_tokens', newMaxTokens)
+  DataStore.settings = {...DataStore.settings, max_tokens: Number(newMaxTokens)}
 }
