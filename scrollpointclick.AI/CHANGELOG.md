@@ -3,6 +3,20 @@
 See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointclick.AI/README.md) for details on available commands and use case.
 
 ## What's Changed?
+
+[0.3.1] - 2023-01-06 (@scrollpointclick)
+
+#### **Added**
+- Reworking the onboarding process for the plugin.
+- onboarding.js
+  - Handles the logic of setting up the plugin.
+- onboardingText.js
+  - Contains all of the prompt and page text data to be used by onboarding.js
+- Both are a work in progress.
+
+#### **Known Issues**
+- Need to add escapes for each prompt of the onboarding process as well as a means to track progress/completion.
+
 [0.3.0] - 2023-01-04 (@scrollpointclick)
 
 #### **Added**

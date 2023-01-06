@@ -33,6 +33,15 @@
       "arguments": []
     },
     {
+      "name": "First Launch",
+      "description": "Introduction to NoteAI",
+      "jsFunction": "firstLaunch",
+      "alias": [
+        "firstlaunch"
+      ],
+      "arguments": []
+    },
+    {
       "name": "Help OpenAI",
       "description": "Help for GPT-3 @ OpenAI",
       "jsFunction": "helpWizard",

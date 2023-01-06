@@ -35,9 +35,15 @@ export async function changeDefaultTargetKeyTerms() {
     }
 }
 
-export async function setOpenAIAPIKey() {
+export async function setOpenAIAPIKey(useClipboard: boolean = false) {
     let { apiKey } = DataStore.settings
-    const newAPIKey = await CommandBar.showInput(`${(apiKey) ? `Current Key: ${apiKey}` : `No API Key Set`}`, `${(apiKey) ? 'Overwrite Existing API Key' : 'Set API Key'}`)
+    let newAPIKey = ''
+    if (useClipboard && Clipboard.string != '') {
+        newAPIKey = await CommandBar.showInput(`Key: ${Clipboard.string}`, 'Set API Key')
+    } else {
+        newAPIKey = await CommandBar.showInput(`${(apiKey) ? `Current Key: ${apiKey}` : 'No API Key Set'}`)
+    }
+    // const newAPIKey2 = await CommandBar.showInput(`${(apiKey) ? `Current Key: ${apiKey} : ${(useClipboard) ? Editor.clipboard` : 'No API Key Set'`, `${(apiKey) ? 'Overwrite Existing API Key' : 'Set API Key'}`)
     DataStore.settings = {...DataStore.settings, apiKey: newAPIKey}
 }
 

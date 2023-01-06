@@ -37,6 +37,7 @@ export { bulletsAI, createResearchDigSite, remixQuery, explore, researchFromSele
 export { adjustPreferences, scrollToEntry, listEndpoints } from './support/helpers'
 export { createAIImages } from './imageAI'
 export { changeDefaultMaxTokens, changeTargetSummaryParagraphs, changeDefaultTargetKeyTerms, setOpenAIAPIKey } from './support/settingsAdjustments'
+export { firstLaunch } from '../src/support/onboarding'
 
 // import './support/fetchOverrides'
 
