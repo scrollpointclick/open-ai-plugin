@@ -20,24 +20,13 @@
 // uncomment it for using server mocks in support/fetchOverrides.js
 // import './support/fetchOverrides'
 
-export {
-  testConnection,
-  introWizard,
-  helpWizard,
-} from './NPAI' // add one of these for every command specifified in plugin.json (the function could be in any file as long as it's exported)
-export {
-  createResearchRequest,
-  createResearchListRequest,
-  createQuickSearch,
-  summarizeNote,
-  updateREADME,
-  noteToPrompt
-} from '../non-implemented_functions'
+export { testConnection, introWizard, helpWizard } from './NPAI' // add one of these for every command specifified in plugin.json (the function could be in any file as long as it's exported)
+export { createResearchRequest, createResearchListRequest, createQuickSearch, summarizeNote, updateREADME, noteToPrompt } from '../non-implemented_functions'
 export { bulletsAI, createResearchDigSite, remixQuery, explore, researchFromSelection, moveNoteToResearchCollection } from './BulletsAI-Main'
 export { adjustPreferences, scrollToEntry, listEndpoints } from './support/helpers'
 export { createAIImages } from './imageAI'
 export { changeDefaultMaxTokens, changeTargetSummaryParagraphs, changeDefaultTargetKeyTerms, setOpenAIAPIKey } from './support/settingsAdjustments'
-export { firstLaunch } from '../src/support/onboarding'
+// export { firstLaunch } from '../src/support/onboarding'
 
 // import './support/fetchOverrides'
 

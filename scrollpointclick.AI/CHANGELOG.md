@@ -4,6 +4,12 @@ See Plugin [README](https://github.com/NotePlan/plugins/blob/main/scrollpointcli
 
 ## What's Changed?
 
+[0.3.2] - 2023-01-11 (@dwertheimer)
+
+#### **Fixed**
+- Fixed token count not being saved properly
+- Consolidated all writing and reading of JSONs into one function each for clarity/consistency
+
 [0.3.1] - 2023-01-06 (@scrollpointclick)
 
 #### **Added**

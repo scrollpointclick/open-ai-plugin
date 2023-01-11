@@ -1,15 +1,14 @@
 // @flow
 import pluginJson from '../plugin.json'
+import { chooseFolder, showMessage } from '../../helpers/userInput'
 import { type JSONData } from './support/AIFlowTypes'
 import { makeRequest } from './support/networking'
 import { generateSubjectSummaryPrompt, generateKeyTermsPrompt, generateExplorationPrompt } from './support/prompts'
 import { formatSubtitle, formatBulletSummary, formatTableOfContents } from './support/formatters'
 import { capitalizeFirstLetter, scrollToEntry } from './support/helpers'
+import { initializeData, loadDataFile, saveClickedLink, saveDataFile, updateClickedLinksJsonData } from './support/externalFileInteractions'
 import { logDebug, logError, JSP } from '@helpers/dev'
 import { escapeRegex, createPrettyOpenNoteLink } from '@helpers/general'
-import { showMessage } from '@helpers/userInput'
-import { chooseFolder } from '../../helpers/userInput'
-import { initializeData, saveClickedLink, updateClickedLinksJsonData, updateTokenCountJsonData } from './support/externalFileInteractions'
 
 type CompletionsRequest = { model: string, prompt?: string, max_tokens?: number, user?: string, suffix?: string, temperature?: string, top_p?: string, n?: number }
 const completionsComponent = 'completions'
@@ -37,7 +36,7 @@ export async function createResearchDigSite(promptIn?: string | null = null) {
     if (subject == '' && Editor.selectedText) {
       subject = capitalizeFirstLetter(Editor.selectedText)
       // const useSelectedFolder = await chooseOption('g', options)
-      createOuterLink()
+      await createOuterLink()
     }
     // logDebug(pluginJson, `createResearchDigSite subject="${subject}" dir="${researchDirectory}" defaultExtension="${DataStore.defaultFileExtension}"`)
     const filename = `${researchDirectory}/${subject}.${DataStore.defaultFileExtension || '.txt'}`
@@ -52,7 +51,6 @@ export async function createResearchDigSite(promptIn?: string | null = null) {
   } catch (error) {
     logError(pluginJson, `Error completing the createResearchDigSite request.\nError: ${error}`)
   }
-  
 }
 
 export async function createOuterLink() {
@@ -154,7 +152,7 @@ async function checkInitialState(promptIn: string, prevSubjectIn: string | null,
 }
 
 function updateBulletLinks(keyTerm?: string = '') {
-  const loadedJSON = DataStore.loadJSON(`Query Data/${Editor.title}/data.json`)
+  const loadedJSON = loadDataFile()
   let prettyKeyTerm = ''
 
   const bulletsToUpdate = Editor.paragraphs.forEach((f) => {
@@ -183,7 +181,7 @@ async function parseResponse(request: Object | null, listRequest: Object | null,
     const totalTokensUsed = request.usage.total_tokens + listRequest.usage.total_tokens
     const keyTerms = []
     logDebug(pluginJson, `\n\n\nTotal Tokens Used=${totalTokensUsed}\n\n\n`)
-    const jsonData = { ...DataStore.loadJSON(`Query Data/${Editor.title}/data.json`) }
+    const jsonData = loadDataFile()
     // clo(jsonData, 'parseResponse jsonData BEFORE')
     for (const keyTerm of jsonData['unclickedLinks']) {
       keyTerms.push(keyTerm.trim())
@@ -193,10 +191,10 @@ async function parseResponse(request: Object | null, listRequest: Object | null,
         keyTerms.push(keyTerm.trim())
       }
     }
-    updateTokenCountJsonData(totalTokensUsed)
+    jsonData['totalTokensUsed'] += totalTokensUsed
     jsonData['unclickedLinks'] = keyTerms
     // clo(jsonData, 'parseResponse jsonData AFTER')
-    DataStore.saveJSON(jsonData, `Query Data/${Editor.title}/data.json`)
+    saveDataFile(jsonData)
     // clo(subtitle, 'subtitle')
 
     const totalTokens = request.usage.total_tokens + listRequest.usage.total_tokens
@@ -322,7 +320,7 @@ export async function updateResearchCollectionTableOfContents(newPath: string, o
 
 export async function updatePrettyLink(link: string, originalNoteTitle: string, newPath: string) {
   // logDebug(pluginJson, link)
-  let heading = link.split(']')[0].slice(1)
+  const heading = link.split(']')[0].slice(1)
   const newLink = `${newPath}/${originalNoteTitle}.${DataStore.defaultFileExtension || '.txt'}`
   logDebug(pluginJson, heading)
   return createPrettyOpenNoteLink(heading, newLink, true, capitalizeFirstLetter(heading))
